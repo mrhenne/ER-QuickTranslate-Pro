@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#82bc00">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>ER QuickTranslate Pro</title>
+    <style>
+        :root {
+            --helios-green: #82bc00;
+            --helios-dark-green: #6a9a00;
+            --bg-color: #f4f7f1;
+            --card-bg: #ffffff;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --border-color: #e2e8f0;
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        /* Top Header & Sticky Area */
+        .top-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 15px 10px;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            color: var(--helios-dark-green);
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            background-color: #eef2eb;
+            transition: all 0.2s;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            background-color: #e2e8db;
+            box-shadow: 0 0 0 2px var(--helios-green);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            color: var(--text-light);
+        }
+
+        .lang-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: none;
+        }
+        
+        .lang-scroll::-webkit-scrollbar { display: none; }
+
+        .lang-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .lang-btn.active {
+            background: var(--helios-green);
+            color: white;
+            border-color: var(--helios-green);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px 15px calc(80px + var(--safe-area-bottom));
+            scroll-behavior: smooth;
+        }
+
+        /* Accordion Styles */
+        .category-header {
+            background: white;
+            color: var(--helios-dark-green);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.05rem;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: background-color 0.2s;
+        }
+
+        .category-header:active {
+            background-color: #f8fafc;
+        }
+
+        .category-header .chevron {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+            color: var(--helios-green);
+        }
+
+        .category-header.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        .category-content {
+            display: none;
+            padding: 10px 0;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .category-content.open {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .phrase-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--helios-green);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .german { font-size: 0.85rem; color: var(--text-light); font-weight: 500; }
+        .target-lang { font-size: 1.15rem; font-weight: 700; color: var(--text-dark); line-height: 1.3; }
+
+        .card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 5px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 10px;
+        }
+
+        .action-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .action-btn.play { background: var(--helios-green); color: white; border: none; }
+        .action-btn:active { transform: scale(0.95); }
+
+        /* Freitext View */
+        #freeTextView {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            padding-top: 20px;
+        }
+
+        .textarea-container {
+            position: relative;
+            width: 100%;
+        }
+
+        #freeTextInput {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: none;
+            transition: border-color 0.2s;
+        }
+
+        #freeTextInput:focus {
+            outline: none;
+            border-color: var(--helios-green);
+        }
+
+        .mic-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .mic-btn.recording {
+            animation: pulse 1.5s infinite;
+            background: #c0392b;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        .translate-btn {
+            background: var(--helios-green);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .translate-btn:active { transform: scale(0.98); }
+
+        #translationResult {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border-left: 4px solid var(--helios-green);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: none;
+        }
+
+        /* Patient Answer Mode View */
+        #patientModeView {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .big-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 25px;
+            border-radius: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn-yes { background: #2ecc71; }
+        .btn-no { background: #e74c3c; }
+        .btn-idk { background: #95a5a6; color: white; font-size: 1.5rem; padding: 20px;}
+
+        /* Visual Answer Overlay */
+        #answerOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #answerOverlay.show {
+            opacity: 1;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 calc(10px + var(--safe-area-bottom));
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            gap: 4px;
+        }
+
+        .nav-item.active { color: var(--helios-green); }
+        .nav-icon { font-size: 1.5rem; }
+
+        .hidden { display: none !important; }
+        .rtl { direction: rtl; text-align: right; }
+        .ltr { direction: ltr; text-align: left; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <h1 class="header-title">Helios QuickTranslate</h1>
+    <div class="search-container" id="searchBox">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Suchen (z.B. Schmerz, Atmen, Blut...)">
+    </div>
+    <div class="lang-scroll" id="langNav"></div>
+</div>
+
+<!-- Main Phrases View -->
+<div class="main-content" id="phrasesView">
+    <div id="phraseContainer"></div>
+</div>
+
+<!-- Freitext View -->
+<div class="main-content" id="freeTextView">
+    <h2 style="color: var(--text-dark); font-size: 1.1rem; margin: 0;">Freitext & Spracheingabe</h2>
+    <p style="color: var(--text-light); font-size: 0.85rem; margin-top: -5px;">Sprich deinen Satz auf Deutsch ein oder tippe ihn. Die App übersetzt live.</p>
+    
+    <div class="textarea-container">
+        <textarea id="freeTextInput" placeholder="Deutschen Text hier eingeben..."></textarea>
+        <button class="mic-btn" id="micBtn" onclick="toggleDictation()" title="Spracheingabe starten">🎤</button>
+    </div>
+
+    <button class="translate-btn" onclick="translateAndSpeak()">
+        <span id="translateText">🌐 Übersetzen & Vorlesen</span>
+        <div class="loader" id="translateLoader"></div>
+    </button>
+
+    <div id="translationResult">
+        <div class="german" id="resGerman"></div>
+        <div class="target-lang" id="resTarget" style="margin-top: 10px;"></div>
+        <div class="card-actions">
+            <button class="action-btn play" onclick="speakResultText()" title="Nochmal Vorlesen">🔊</button>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Answer Mode View -->
+<div class="main-content" id="patientModeView">
+    <h2 style="color: var(--text-light); font-size: 1rem; margin-bottom: 20px;">Patienten Antwort Modus<br><small>(Bitte dem Patienten zeigen)</small></h2>
+    
+    <button class="big-btn btn-yes" onclick="handlePatientAnswer('Ja', '#2ecc71')">
+        <div id="pm-yes" style="font-size: 3rem; margin-bottom: 10px;">👍</div>
+        <span id="pm-yes-text">Ja</span>
+    </button>
+    
+    <button class="big-btn btn-no" onclick="handlePatientAnswer('Nein', '#e74c3c')">
+        <div id="pm-no" style="font-size: 3rem; margin-bottom: 10px;">👎</div>
+        <span id="pm-no-text">Nein</span>
+    </button>
+
+    <button class="big-btn btn-idk" onclick="handlePatientAnswer('Weiß nicht', '#95a5a6')">
+        🤷‍♂️ <span id="pm-idk-text">Weiß nicht</span>
+    </button>
+</div>
+
+<!-- Fullscreen Overlay for Answers -->
+<div id="answerOverlay"></div>
+
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="switchTab('phrases', this)">
+        <span class="nav-icon">📋</span>
+        <span>Phrasen</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('freetext', this)">
+        <span class="nav-icon">🎙️</span>
+        <span>Freitext</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('patient', this)">
+        <span class="nav-icon">🤝</span>
+        <span>Antwort</span>
+    </div>
+</div>
+
+<script>
+    const data = {
+        languages: {
+            "en": { name: "Englisch", code: "en-US", flag: "🇬🇧", ui: { yes: "Yes", no: "No", idk: "I don't know" } },
+            "ar": { name: "Arabisch", code: "ar-SA", flag: "🇸🇦", rtl: true, ui: { yes: "نعم", no: "لا", idk: "لا أعرف" } },
+            "fa": { name: "Persisch", code: "fa-IR", flag: "🇮🇷", rtl: true, ui: { yes: "بله", no: "خیر", idk: "نمی‌دانم" } },
+            "tr": { name: "Türkisch", code: "tr-TR", flag: "🇹🇷", ui: { yes: "Evet", no: "Hayır", idk: "Bilmiyorum" } },
+            "ru": { name: "Russisch", code: "ru-RU", flag: "🇷🇺", ui: { yes: "Да", no: "Нет", idk: "Не знаю" } },
+            "uk": { name: "Ukrainisch", code: "uk-UA", flag: "🇺🇦", ui: { yes: "Так", no: "Ні", idk: "Не знаю" } },
+            "pl": { name: "Polnisch", code: "pl-PL", flag: "🇵🇱", ui: { yes: "Tak", no: "Nie", idk: "Nie wiem" } },
+            "ro": { name: "Rumänisch", code: "ro-RO", flag: "🇷🇴", ui: { yes: "Da", no: "Nu", idk: "Nu știu" } }
+        },
+        phrases: [
+            // --- 1. TRIAGE & BEGRÜSSUNG ---
+            { cat: "1. Triage & Begrüßung", tags: ["hallo", "arzt", "schwester"], de: "Hallo, ich bin Pflegekraft. Ein Arzt kommt gleich.", en: "Hello, I am a nurse. A doctor will be here shortly.", ar: "مرحباً، أنا ممرض. سيأتي الطبيب قريباً.", fa: "سلام، من پرستار هستم. دکتر به زودي می‌آید.", tr: "Merhaba, ben hemşireyim. Doktor birazdan gelecek.", ru: "Здравствуйте, я медсестра/медбрат. Врач скоро придет.", uk: "Доброго дня, я медсестра. Лікар скоро прийде.", pl: "Dzień dobry, jestem pielęgniarką. Lekarz zaraz przyjdzie.", ro: "Bună, sunt asistent. Un medic va veni curând." },
+            { cat: "1. Triage & Begrüßung", tags: ["ausweis", "karte", "krankenkasse"], de: "Haben Sie Ihren Ausweis oder die Krankenkarte dabei?", en: "Do you have your ID or health insurance card with you?", ar: "هل معك هويتك أو بطاقة التأمين الصحي؟", fa: "کارت شناسایی یا کارت بیمه همراه دارید؟", tr: "Kimliğiniz veya sağlık sigortası kartınız yanınızda mı?", ru: "У вас есть с собой паспорт или страховой полис?", uk: "У вас є з собою паспорт або страховий поліс?", pl: "Czy ma pan/pani dowód osobisty lub kartę ubezpieczenia?", ro: "Aveți actul de identitate sau cardul de sănătate?" },
+            { cat: "1. Triage & Begrüßung", tags: ["sitzen", "platz", "warten"], de: "Bitte nehmen Sie im Wartezimmer Platz.", en: "Please take a seat in the waiting room.", ar: "يرجى الجلوس في غرفة الانتظار.", fa: "لطفا در اتاق انتظار بنشینید.", tr: "Lütfen bekleme salonunda oturun.", ru: "Пожалуйста, присядьте в зале ожидания.", uk: "Будь ласка, зачекайте в кімнаті очікування.", pl: "Proszę usiąść w poczekalni.", ro: "Vă rugăm să luați loc în sala de așteptare." },
+            { cat: "1. Triage & Begrüßung", tags: ["nüchtern", "essen", "trinken"], de: "Bitte essen und trinken Sie vorerst nichts mehr.", en: "Please do not eat or drink anything for now.", ar: "يرجى عدم تناول الطعام أو الشراب في الوقت الحالي.", fa: "لطفا فعلا چیزی نخورید و ننوشید.", tr: "Lütfen şimdilik hiçbir şey yiyip içmeyin.", ru: "Пожалуйста, пока ничего не ешьте и не пейте.", uk: "Будь ласка, поки нічого не їжте і не пийте.", pl: "Proszę na razie nic nie jeść ani nie pić.", ro: "Vă rugăm să nu mâncați și să nu beți nimic deocamdată." },
+            { cat: "1. Triage & Begrüßung", tags: ["angehörige", "familie"], de: "Sind Angehörige bei Ihnen?", en: "Are any family members with you?", ar: "هل معك أي من أفراد العائلة؟", fa: "آیا اعضای خانواده همراه شما هستند؟", tr: "Yanınızda aile üyelerinden biri var mı?", ru: "С вами есть родственники?", uk: "З вами є родичі?", pl: "Czy są z panem/panią członkowie rodziny?", ro: "Sunt membri ai familiei cu dumneavoastră?" },
+
+            // --- 2. SCHMERZANAMNESE (OPQRST) ---
+            { cat: "2. Schmerzanamnese", tags: ["schmerz", "weh", "pain"], de: "Haben Sie Schmerzen?", en: "Are you in pain?", ar: "هل تشعر بألم؟", fa: "آیا درد دارید؟", tr: "Ağrınız var mı?", ru: "У вас что-то болит?", uk: "У вас щось болить?", pl: "Czy coś boli?", ro: "Aveți dureri?" },
+            { cat: "2. Schmerzanamnese", tags: ["wo", "ort", "zeigen"], de: "Zeigen Sie mit einem Finger, wo es am meisten weh tut.", en: "Point with one finger to where it hurts the most.", ar: "أشر بإصبع واحد إلى مكان الألم الأكثر شدة.", fa: "با یک انگشت نشان دهید کجا بیشتر درد می کند.", tr: "En çok nerenin ağrıdığını tek parmağınızla gösterin.", ru: "Покажите одним пальцем, где болит сильнее всего.", uk: "Покажіть одним пальцем, де болить найбільше.", pl: "Proszę pokazać jednym palcem, gdzie najbardziej boli.", ro: "Arătați cu un deget unde doare cel mai tare." },
+            { cat: "2. Schmerzanamnese", tags: ["seit wann", "beginn", "zeit"], de: "Seit wann haben Sie diese Schmerzen?", en: "Since when have you had this pain?", ar: "منذ متى تعاني من هذا الألم؟", fa: "از کی این درد را دارید؟", tr: "Bu ağrı ne zamandan beri var?", ru: "Как давно у вас эта боль?", uk: "Як давно у вас цей біль?", pl: "Od kiedy ma pan/pani ten ból?", ro: "De când aveți aceste dureri?" },
+            { cat: "2. Schmerzanamnese", tags: ["ausstrahlung", "ziehen", "arm", "rücken"], de: "Strahlt der Schmerz in den Arm, Rücken oder Bauch aus?", en: "Does the pain radiate to your arm, back, or stomach?", ar: "هل يمتد الألم إلى ذراعك أو ظهرك أو معدتك؟", fa: "آیا درد به بازو، پشت یا شکم می زند؟", tr: "Ağrı kolunuza, sırtınıza veya karnınıza yayılıyor mu?", ru: "Отдает ли боль в руку, спину или живот?", uk: "Чи віддає біль у руку, спину або живіт?", pl: "Czy ból promieniuje do ramienia, pleców lub brzucha?", ro: "Durerea radiază în braț, spate sau stomac?" },
+            { cat: "2. Schmerzanamnese", tags: ["skala", "1-10", "stark"], de: "Auf einer Skala von 0 (kein Schmerz) bis 10 (stärkster Schmerz), wie stark ist es?", en: "On a scale from 0 to 10, how bad is the pain?", ar: "على مقياس من 0 إلى 10، ما مدى شدة الألم؟", fa: "در مقیاس 0 تا 10، درد چقدر شدید است؟", tr: "0 ile 10 arası bir ölçekte ağrınız ne kadar şiddetli?", ru: "По шкале от 0 до 10, насколько сильная боль?", uk: "За шкалою від 0 до 10, наскільки сильний біль?", pl: "W skali od 0 do 10, jak silny jest ból?", ro: "Pe o scară de la 0 la 10, cât de puternică este durerea?" },
+            { cat: "2. Schmerzanamnese", tags: ["dumpf", "stechend", "brennend"], de: "Ist der Schmerz dumpf, stechend oder brennend?", en: "Is the pain dull, sharp, or burning?", ar: "هل الألم خفيف أم حاد أم حارق؟", fa: "آیا درد مبهم، تیز یا سوزناک است؟", tr: "Ağrı künt, keskin veya yanıcı mı?", ru: "Боль тупая, острая или жгучая?", uk: "Біль тупий, гострий чи пекучий?", pl: "Czy ból jest tępy, kłujący czy piekący?", ro: "Durerea este surdă, ascuțită sau arzătoare?" },
+            { cat: "2. Schmerzanamnese", tags: ["dauerhaft", "wellen"], de: "Ist der Schmerz dauerhaft da oder kommt er in Wellen?", en: "Is the pain constant or does it come in waves?", ar: "هل الألم مستمر أم يأتي على شكل موجات؟", fa: "آیا درد مداوم است یا موجی می آید؟", tr: "Ağrı sürekli mi yoksa dalgalar halinde mi geliyor?", ru: "Боль постоянная или накатывает волнами?", uk: "Біль постійний чи накочує хвилями?", pl: "Czy ból jest ciągły, czy przychodzi falami?", ro: "Durerea este constantă sau vine în valuri?" },
+            { cat: "2. Schmerzanamnese", tags: ["besser", "schlechter"], de: "Wird der Schmerz bei Bewegung oder beim Atmen schlimmer?", en: "Does the pain get worse with movement or breathing?", ar: "هل يزداد الألم سوءاً مع الحركة أو التنفس؟", fa: "آیا درد با حرکت یا تنفس بدتر می شود؟", tr: "Hareket edince veya nefes alırken ağrı artıyor mu?", ru: "Боль усиливается при движении или дыхании?", uk: "Чи посилюється біль при русі або диханні?", pl: "Czy ból nasila się przy ruchu lub oddychaniu?", ro: "Durerea se agravează la mișcare sau respirație?" },
+
+            // --- 3. ATEMWEGE & HERZ (Thorax) ---
+            { cat: "3. Atemwege & Herz", tags: ["atemnot", "luft", "atmen"], de: "Haben Sie Atemnot oder das Gefühl, keine Luft zu bekommen?", en: "Do you have shortness of breath or feel like you can't get air?", ar: "هل تعاني من ضيق في التنفس؟", fa: "آیا تنگی نفس دارید؟", tr: "Nefes darlığınız var mı?", ru: "Вам трудно дышать?", uk: "Вам важко дихати?", pl: "Czy ma pan/pani duszności?", ro: "Aveți dificultăți de respirație?" },
+            { cat: "3. Atemwege & Herz", tags: ["brustschmerz", "druck", "herz"], de: "Spüren Sie einen Druck oder Engegefühl in der Brust?", en: "Do you feel pressure or tightness in your chest?", ar: "هل تشعر بضغط أو ضيق في صدرك؟", fa: "آیا در قفسه سینه احساس فشار یا تنگی می کنید؟", tr: "Göğsünüzde baskı veya sıkışma hissediyor musunuz?", ru: "Вы чувствуете давление или стеснение в груди?", uk: "Ви відчуваєте тиск або стиснення в грудях?", pl: "Czy czuje pan/pani ucisk lub ciasnotę w klatce piersiowej?", ro: "Simțiți presiune sau o strângere în piept?" },
+            { cat: "3. Atemwege & Herz", tags: ["herzrasen", "puls", "schnell"], de: "Haben Sie Herzrasen oder Herzstolpern?", en: "Do you have a rapid or irregular heartbeat?", ar: "هل تعاني من سرعة أو عدم انتظام ضربات القلب؟", fa: "آیا تپش قلب سریع یا نامنظم دارید؟", tr: "Çarpıntınız veya düzensiz kalp atışınız var mı?", ru: "У вас учащенное сердцебиение или перебои в работе сердца?", uk: "У вас прискорене серцебиття або перебої в роботі серця?", pl: "Czy ma pan/pani kołatanie serca?", ro: "Aveți palpitații sau bătăi neregulate ale inimii?" },
+            { cat: "3. Atemwege & Herz", tags: ["husten", "auswurf", "blut"], de: "Haben Sie Husten? Kommt beim Husten Schleim oder Blut?", en: "Do you have a cough? Are you coughing up phlegm or blood?", ar: "هل تعاني من سعال؟ هل تسعل بلغماً أو دماً؟", fa: "آیا سرفه می کنید؟ آیا خلط یا خون بالا می آورید؟", tr: "Öksürüğünüz var mı? Öksürürken balgam veya kan geliyor mu?", ru: "У вас есть кашель? Вы откашливаете мокроту или кровь?", uk: "У вас є кашель? Ви відкашлюєте мокротиння або кров?", pl: "Czy pan/pani kaszle? Czy odkrztusza flegmę lub krew?", ro: "Tușiți? Eliminați flegmă sau sânge?" },
+
+            // --- 4. NEUROLOGIE & KOPF ---
+            { cat: "4. Neurologie & Kopf", tags: ["schwindel", "drehen", "kopf"], de: "Ist Ihnen schwindelig? Dreht sich alles?", en: "Do you feel dizzy? Is everything spinning?", ar: "هل تشعر بالدوار؟ هل يدور كل شيء؟", fa: "آیا سرگیجه دارید؟ آیا همه چیز می چرخد؟", tr: "Başınız dönüyor mu? Her şey etrafınızda dönüyor mu?", ru: "У вас кружится голова? Все вращается?", uk: "У вас паморочиться голова? Все крутиться?", pl: "Czy kręci się w głowie? Czy wszystko wiruje?", ro: "Sunteți amețit? Totul se învârte?" },
+            { cat: "4. Neurologie & Kopf", tags: ["ohnmacht", "bewusstlos", "umgekippt"], de: "Waren Sie bewusstlos oder sind Sie umgekippt?", en: "Did you lose consciousness or pass out?", ar: "هل فقدت الوعي أو أغمي عليك؟", fa: "آیا بیهوش شدید یا غش کردید؟", tr: "Bilincinizi kaybettiniz mi veya bayıldınız mı?", ru: "Вы теряли сознание или падали в обморок?", uk: "Ви втрачали свідомість або непритомніли?", pl: "Czy stracił(a) pan/pani przytomność?", ro: "Ați leșinat sau v-ați pierdut cunoștința?" },
+            { cat: "4. Neurologie & Kopf", tags: ["sehen", "augen", "doppelt"], de: "Haben Sie Probleme beim Sehen? Sehen Sie doppelt?", en: "Do you have trouble seeing? Are you seeing double?", ar: "هل تجد صعوبة في الرؤية؟ هل ترى الأشياء مزدوجة؟", fa: "آیا مشکل بینایی دارید؟ آیا دوگانه می بینید؟", tr: "Görme sorununuz var mı? Çift mi görüyorsunuz?", ru: "У вас проблемы со зрением? Вы видите вдвойне?", uk: "У вас проблеми із зором? Ви бачите подвійно?", pl: "Czy ma pan/pani problemy z widzeniem? Czy widzi pan/pani podwójnie?", ro: "Aveți probleme de vedere? Vedeți dublu?" },
+            { cat: "4. Neurologie & Kopf", tags: ["taub", "kribbeln", "lähmung", "arm", "bein"], de: "Haben Sie Taubheitsgefühle, Kribbeln oder Lähmungen in Armen oder Beinen?", en: "Do you have numbness, tingling, or paralysis in your arms or legs?", ar: "هل تشعر بخدر أو تنميل أو شلل في ذراعيك أو ساقيك؟", fa: "آیا در دست یا پا احساس بی حسی، گزگز یا فلجی دارید؟", tr: "Kollarınızda veya bacaklarınızda uyuşma, karıncalanma veya felç hissi var mı?", ru: "Есть ли онемение, покалывание или слабость в руках или ногах?", uk: "Є оніміння, поколювання або слабкість в руках чи ногах?", pl: "Czy czuje pan/pani drętwienie, mrowienie lub paraliż rąk lub nóg?", ro: "Aveți amorțeală, furnicături sau paralizie la brațe sau picioare?" },
+            { cat: "4. Neurologie & Kopf", tags: ["sprechen", "sprache", "verstehen"], de: "Fällt Ihnen das Sprechen schwer?", en: "Is it difficult for you to speak?", ar: "هل تجد صعوبة في التحدث؟", fa: "آیا صحبت کردن برایتان سخت است؟", tr: "Konuşmakta zorlanıyor musunuz?", ru: "Вам трудно говорить?", uk: "Вам важко розмовляти?", pl: "Czy ma pan/pani trudności z mówieniem?", ro: "Vă este greu să vorbiți?" },
+
+            // --- 5. GASTRO & ABDOMEN ---
+            { cat: "5. Magen & Darm", tags: ["übel", "erbrechen", "kotzen"], de: "Ist Ihnen übel oder haben Sie erbrochen?", en: "Are you nauseous or have you vomited?", ar: "هل تشعر بالغثيان أو هل تقيأت؟", fa: "آیا حالت تهوع دارید یا استفراغ کرده اید؟", tr: "Mideniz mi bulanıyor veya kustunuz mu?", ru: "Вас тошнит или вы рвали?", uk: "Вас нудить або ви блювали?", pl: "Czy ma pan/pani mdłości lub wymioty?", ro: "Vă este greață sau ați vomitat?" },
+            { cat: "5. Magen & Darm", tags: ["durchfall", "stuhl", "blut"], de: "Haben Sie Durchfall? War Blut im Stuhl oder Erbrochenen?", en: "Do you have diarrhea? Was there blood in your stool or vomit?", ar: "هل تعاني من الإسهال؟ هل كان هناك دم في البراز أو القيء؟", fa: "آیا اسهال دارید؟ آیا در مدفوع یا استفراغ خون بود؟", tr: "İshaliniz var mı? Dışkınızda veya kusmuğunuzda kan var mıydı?", ru: "У вас есть диарея? Была ли кровь в стуле или рвоте?", uk: "У вас є діарея? Чи була кров у калі або блювоті?", pl: "Czy ma pan/pani biegunkę? Czy we krwi lub wymiotach była krew?", ro: "Aveți diaree? A fost sânge în scaun sau vărsături?" },
+            { cat: "5. Magen & Darm", tags: ["stuhlgang", "toilette"], de: "Wann hatten Sie den letzten Stuhlgang?", en: "When was your last bowel movement?", ar: "متى كانت آخر حركة أمعاء لك؟", fa: "آخرین بار کی اجابت مزاج داشتید؟", tr: "En son ne zaman büyük tuvaletinize çıktınız?", ru: "Когда у вас был последний стул?", uk: "Коли у вас був останній стілець?", pl: "Kiedy pan/pani ostatnio się wypróżniał(a)?", ro: "Când ați avut ultimul scaun?" },
+            { cat: "5. Magen & Darm", tags: ["bauch", "hart", "schmerz"], de: "Wo genau tut der Bauch weh? Oben, unten, rechts oder links?", en: "Where exactly does your stomach hurt? Top, bottom, right, or left?", ar: "أين يؤلمك بطنك بالضبط؟ في الأعلى، الأسفل، اليمين، أم اليسار؟", fa: "دقیقاً کجای شکم درد می کند؟ بالا، پایین، راست یا چپ؟", tr: "Karnınız tam olarak neresi ağrıyor? Üst, alt, sağ veya sol?", ru: "Где именно болит живот? Сверху, снизу, справа или слева?", uk: "Де саме болить живіт? Зверху, знизу, праворуч чи ліворуч?", pl: "Gdzie dokładnie boli brzuch? Na górze, na dole, po prawej czy po lewej?", ro: "Unde anume vă doare burta? Sus, jos, la dreapta sau la stânga?" },
+
+            // --- 6. UNFALL & TRAUMA ---
+            { cat: "6. Unfall & Verletzung", tags: ["sturz", "unfall", "gefallen"], de: "Sind Sie gestürzt oder hatten Sie einen Unfall?", en: "Did you fall or have an accident?", ar: "هل سقطت أو تعرضت لحادث؟", fa: "آیا زمین خوردید یا تصادف کردید؟", tr: "Düştünüz mü veya bir kaza mı geçirdiniz?", ru: "Вы упали или попали в аварию?", uk: "Ви впали або потрапили в аварію?", pl: "Czy pan/pani upadł(a) lub miał(a) wypadek?", ro: "Ați căzut sau ați avut un accident?" },
+            { cat: "6. Unfall & Verletzung", tags: ["kopf", "angeschlagen"], de: "Haben Sie sich den Kopf angeschlagen?", en: "Did you hit your head?", ar: "هل ضربت رأسك؟", fa: "آیا سرتان به جایی خورد؟", tr: "Kafanızı bir yere çarptınız mı?", ru: "Вы ударились головой?", uk: "Ви вдарилися головою?", pl: "Czy uderzył(a) się pan/pani w głowę?", ro: "V-ați lovit la cap?" },
+            { cat: "6. Unfall & Verletzung", tags: ["blutung", "wunde", "schnitt"], de: "Haben Sie blutende Wunden?", en: "Do you have any bleeding wounds?", ar: "هل لديك أي جروح تنزف؟", fa: "آیا زخم خونریزی دهنده دارید؟", tr: "Kanayan yaranız var mı?", ru: "У вас есть кровоточащие раны?", uk: "У вас є рани, що кровоточать?", pl: "Czy ma pan/pani krwawiące rany?", ro: "Aveți răni care sângerează?" },
+            { cat: "6. Unfall & Verletzung", tags: ["tetanus", "impfung"], de: "Wann war Ihre letzte Tetanus-Impfung?", en: "When was your last tetanus shot?", ar: "متى كانت آخر حقنة تيتانوس لك؟", fa: "آخرین واکسن کزاز شما کی بود؟", tr: "Son tetanos aşınız ne zamandı?", ru: "Когда вам в последний раз делали прививку от столбняка?", uk: "Коли вам востаннє робили щеплення від правця?", pl: "Kiedy było ostatnie szczepienie na tężec?", ro: "Când ați făcut ultimul vaccin antitetanos?" },
+
+            // --- 7. VORGESCHICHTE (SAMPLER) ---
+            { cat: "7. Vorgeschichte & Medikamente", tags: ["allergie", "medikamente"], de: "Haben Sie Allergien gegen Medikamente, Pflaster oder Kontrastmittel?", en: "Are you allergic to any medications, plasters, or contrast dye?", ar: "هل لديك حساسية تجاه الأدوية أو اللاصق الطبي أو صبغة التباين؟", fa: "آیا به دارو، چسب زخم یا ماده حاجب حساسیت دارید؟", tr: "İlaçlara, yara bantlarına veya kontrast maddeye alerjiniz var mı?", ru: "У вас есть аллергия на лекарства, пластыри или контрастное вещество?", uk: "У вас є алергія на ліки, пластирі або контрастну речовину?", pl: "Czy ma pan/pani uczulenie na leki, plastry lub kontrast?", ro: "Aveți alergii la medicamente, plasturi sau substanță de contrast?" },
+            { cat: "7. Vorgeschichte & Medikamente", tags: ["vorerkrankungen", "herz", "diabetes"], de: "Haben Sie chronische Krankheiten wie Diabetes, Bluthochdruck oder Herzprobleme?", en: "Do you have chronic illnesses like diabetes, high blood pressure, or heart problems?", ar: "هل تعاني من أمراض مزمنة مثل السكري أو ارتفاع ضغط الدم أو مشاكل القلب؟", fa: "آیا بیماری مزمن مانند دیابت، فشار خون بالا یا مشکلات قلبی دارید؟", tr: "Diyabet, yüksek tansiyon veya kalp sorunları gibi kronik hastalıklarınız var mı?", ru: "Есть ли у вас хронические заболевания, такие как диабет, высокое давление или болезни сердца?", uk: "Чи є у вас хронічні захворювання, такі як діабет, високий тиск або хвороби серця?", pl: "Czy ma pan/pani choroby przewlekłe, takie jak cukrzyca, nadciśnienie lub problemy z sercem?", ro: "Aveți boli cronice precum diabet, hipertensiune sau probleme cardiace?" },
+            { cat: "7. Vorgeschichte & Medikamente", tags: ["blutverdünner", "marcumar", "eliquis", "xarelto"], de: "Nehmen Sie blutverdünnende Medikamente? (z.B. Marcumar, Xarelto, Eliquis)", en: "Do you take blood-thinning medications?", ar: "هل تتناول أدوية مسيلة للدم؟", fa: "آیا داروهای رقیق کننده خون مصرف می کنید؟", tr: "Kan sulandırıcı ilaç kullanıyor musunuz?", ru: "Вы принимаете препараты для разжижения крови?", uk: "Ви приймаєте препарати для розрідження крові?", pl: "Czy bierze pan/pani leki rozrzedzające krew?", ro: "Luați medicamente pentru subțierea sângelui?" },
+            { cat: "7. Vorgeschichte & Medikamente", tags: ["medikamentenliste", "plan"], de: "Haben Sie einen Medikamentenplan dabei?", en: "Do you have a medication list with you?", ar: "هل معك قائمة بأدويتك؟", fa: "آیا لیست داروهایتان همراهتان است؟", tr: "Yanınızda ilaç listeniz var mı?", ru: "У вас есть с собой список лекарств?", uk: "У вас є з собою список ліків?", pl: "Czy ma pan/pani ze sobą listę leków?", ro: "Aveți la dumneavoastră o listă de medicamente?" },
+            { cat: "7. Vorgeschichte & Medikamente", tags: ["letzte mahlzeit", "essen", "trinken"], de: "Wann haben Sie zuletzt etwas gegessen oder getrunken?", en: "When was the last time you ate or drank something?", ar: "متى كانت آخر مرة أكلت أو شربت فيها؟", fa: "آخرین بار کی چیزی خوردید یا نوشیدید؟", tr: "En son ne zaman bir şeyler yeyip içtiniz?", ru: "Когда вы в последний раз ели или пили?", uk: "Коли ви востаннє їли або пили?", pl: "Kiedy pan/pani ostatnio jadł(a) lub pił(a)?", ro: "Când ați mâncat sau băut ultima dată?" },
+            { cat: "7. Vorgeschichte & Medikamente", tags: ["schwanger", "periode", "frau"], de: "Könnten Sie schwanger sein? Wann war Ihre letzte Periode?", en: "Could you be pregnant? When was your last period?", ar: "هل يمكن أن تكوني حاملاً؟ متى كانت آخر دورة شهرية لك؟", fa: "ممکن است باردار باشید؟ آخرین پریود شما کی بود؟", tr: "Hamile olabilir misiniz? Son adetiniz ne zamandı?", ru: "Вы можете быть беременны? Когда была последняя менструация?", uk: "Ви можете бути вагітні? Коли була остання менструація?", pl: "Czy może być pani w ciąży? Kiedy była ostatnia miesiączka?", ro: "Ați putea fi însărcinată? Când ați avut ultima menstruație?" },
+
+            // --- 8. ANWEISUNGEN & UNTERSUCHUNG ---
+            { cat: "8. Untersuchung & Anweisungen", tags: ["freimachen", "ausziehen", "kleidung"], de: "Bitte machen Sie den Oberkörper frei.", en: "Please strip to the waist.", ar: "يرجى خلع ملابسك من الأعلى.", fa: "لطفا بالاتنه خود را برهنه کنید.", tr: "Lütfen üstünüzü çıkarın.", ru: "Пожалуйста, разденьтесь до пояса.", uk: "Будь ласка, роздягніться до пояса.", pl: "Proszę rozebrać się do pasa.", ro: "Vă rugăm să vă dezbrăcați în partea de sus." },
+            { cat: "8. Untersuchung & Anweisungen", tags: ["hinlegen", "liege", "bett"], de: "Bitte legen Sie sich hier auf die Liege.", en: "Please lie down on the examination table.", ar: "يرجى الاستلقاء هنا على سرير الفحص.", fa: "لطفا اینجا روی تخت دراز بکشید.", tr: "Lütfen buradaki sedyeye uzanın.", ru: "Пожалуйста, ложитесь сюда на кушетку.", uk: "Будь ласка, ляжте сюди на кушетку.", pl: "Proszę położyć się tutaj na kozetce.", ro: "Vă rugăm să vă întindeți aici pe pat." },
+            { cat: "8. Untersuchung & Anweisungen", tags: ["atmen", "tief", "lunge"], de: "Bitte tief ein- und ausatmen.", en: "Please breathe in and out deeply.", ar: "يرجى التنفس بعمق للداخل والخارج.", fa: "لطفا عمیق نفس بکشید.", tr: "Lütfen derin nefes alıp verin.", ru: "Пожалуйста, глубоко вдохните и выдохните.", uk: "Будь ласка, глибоко вдихніть і видихніть.", pl: "Proszę głęboko wdychać i wydychać powietrze.", ro: "Vă rugăm să respirați adânc." },
+            { cat: "8. Untersuchung & Anweisungen", tags: ["augen", "folgen", "finger"], de: "Bitte folgen Sie meinem Finger nur mit den Augen.", en: "Please follow my finger with your eyes only.", ar: "يرجى تتبع إصبعي بعينيك فقط.", fa: "لطفا فقط با چشمانتان انگشت من را دنبال کنید.", tr: "Lütfen sadece gözlerinizle parmağımı takip edin.", ru: "Пожалуйста, следите за моим пальцем только глазами.", uk: "Будь ласка, слідкуйте за моїм пальцем тільки очима.", pl: "Proszę śledzić mój palec tylko oczami.", ro: "Vă rugăm să urmăriți degetul meu doar cu ochii." },
+            { cat: "8. Untersuchung & Anweisungen", tags: ["locker", "entspannen", "arm"], de: "Bitte lassen Sie den Arm ganz locker.", en: "Please relax your arm completely.", ar: "يرجى إرخاء ذراعك تماماً.", fa: "لطفا دست خود را کاملا شل کنید.", tr: "Lütfen kolunuzu tamamen serbest bırakın.", ru: "Пожалуйста, полностью расслабьте руку.", uk: "Будь ласка, повністю розслабте руку.", pl: "Proszę całkowicie rozluźnić ramię.", ro: "Vă rugăm să relaxați complet brațul." },
+            { cat: "8. Untersuchung & Anweisungen", tags: ["blutabnahme", "stechen", "nadel"], de: "Ich nehme Ihnen jetzt Blut ab. Es piekst kurz.", en: "I am going to draw some blood now. You will feel a small scratch.", ar: "سأقوم بسحب بعض الدم الآن. ستشعر بوخزة صغيرة.", fa: "اکنون از شما خون می گیرم. یک سوزش کوچک احساس خواهید کرد.", tr: "Şimdi sizden kan alacağım. Küçük bir iğne batması hissedeceksiniz.", ru: "Сейчас я возьму у вас кровь. Будет небольшой укол.", uk: "Зараз я візьму у вас кров. Буде невеликий укол.", pl: "Teraz pobiorę krew. Poczuje pan/pani małe ukłucie.", ro: "Acum vă voi lua sânge. Veți simți o mică înțepătură." },
+            { cat: "8. Untersuchung & Anweisungen", tags: ["ekg", "kabel", "herz"], de: "Wir schreiben jetzt ein EKG (Herzstromkurve).", en: "We are going to do an ECG (heart test) now.", ar: "سنقوم بإجراء تخطيط للقلب الآن.", fa: "اکنون نوار قلب (ECG) می گیریم.", tr: "Şimdi size EKG (kalp grafisi) çekeceğiz.", ru: "Сейчас мы сделаем вам ЭКГ.", uk: "Зараз ми зробимо вам ЕКГ.", pl: "Teraz zrobimy EKG.", ro: "Acum vom face un EKG (electrocardiogramă)." },
+            { cat: "8. Untersuchung & Anweisungen", tags: ["zugang", "nadel", "infusion"], de: "Sie bekommen einen Venenzugang für Medikamente.", en: "You are getting an IV line for medications.", ar: "ستحصل على قسطرة وريدية للأدوية.", fa: "برای دریافت دارو، یک مسیر وریدی (آنژیوکت) برایتان وصل می کنیم.", tr: "İlaçlar için size damar yolu açacağız.", ru: "Вам поставят катетер в вену для лекарств.", uk: "Вам поставлять катетер у вену для ліків.", pl: "Założymy wkłucie dożylne na leki.", ro: "Veți primi o linie intravenoasă pentru medicamente." },
+            { cat: "8. Untersuchung & Anweisungen", tags: ["urin", "becher", "probe"], de: "Wir benötigen eine Urinprobe. Bitte in diesen Becher.", en: "We need a urine sample. Please use this cup.", ar: "نحتاج إلى عينة بول. يرجى وضعها في هذا الكوب.", fa: "به نمونه ادرار نیاز داریم. لطفا در این ظرف بریزید.", tr: "İdrar örneğine ihtiyacımız var. Lütfen bu kaba yapın.", ru: "Нам нужен анализ мочи. Пожалуйста, в этот стаканчик.", uk: "Нам потрібен аналіз сечі. Будь ласка, в цей стаканчик.", pl: "Potrzebujemy próbki moczu. Proszę do tego kubeczka.", ro: "Avem nevoie de o probă de urină. Vă rugăm să folosiți acest pahar." },
+            { cat: "8. Untersuchung & Anweisungen", tags: ["röntgen", "ct", "bild"], de: "Sie müssen zum Röntgen / CT. Ein Kollege holt Sie gleich ab.", en: "You need an X-ray / CT scan. A colleague will pick you up shortly.", ar: "تحتاج إلى أشعة سينية / تصوير مقطعي. سيأتي زميل لأخذك قريباً.", fa: "شما به عکس برداری / سی تی اسکن نیاز دارید. یک همکار به زودی دنبال شما می آید.", tr: "Röntgen / Tomografi çekilmesi gerekiyor. Bir meslektaşım sizi birazdan alacak.", ru: "Вам нужно сделать рентген / КТ. Коллега скоро за вами зайдет.", uk: "Вам потрібно зробити рентген / КТ. Колега скоро за вами зайде.", pl: "Musi pan/pani zrobić prześwietlenie / tomografię. Kolega zaraz po pana/panią przyjdzie.", ro: "Trebuie să faceți o radiografie / un CT. Un coleg vă va prelua curând." }
+        ]
+    };
+
+    let currentLang = 'en';
+    const searchInput = document.getElementById('searchInput');
+    let recognition = null;
+    let isRecording = false;
+
+    function init() {
+        const nav = document.getElementById('langNav');
+        Object.keys(data.languages).forEach(key => {
+            const btn = document.createElement('button');
+            btn.className = `lang-btn ${key === currentLang ? 'active' : ''}`;
+            btn.innerHTML = `<span>${data.languages[key].flag}</span> <span>${data.languages[key].name}</span>`;
+            btn.onclick = () => setLanguage(key, btn);
+            nav.appendChild(btn);
+        });
+
+        searchInput.addEventListener('input', (e) => renderPhrases(e.target.value));
+        
+        // Initial setup
+        switchTab('phrases', document.querySelector('.nav-item.active'));
+        updatePatientModeUI();
+        initSpeechRecognition();
+        
+        // Render Initial Categories without search term
+        renderPhrases('');
+    }
+
+    function setLanguage(langCode, btnElement) {
+        currentLang = langCode;
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        btnElement.classList.add('active');
+        btnElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        
+        renderPhrases(searchInput.value);
+        updatePatientModeUI();
+        document.getElementById('translationResult').style.display = 'none';
+    }
+
+    function renderPhrases(searchTerm = '') {
+        const container = document.getElementById('phraseContainer');
+        container.innerHTML = '';
+        const term = searchTerm.toLowerCase().trim();
+        const langInfo = data.languages[currentLang];
+        const textDirection = langInfo.rtl ? 'rtl' : 'ltr';
+        
+        // Filter logic
+        const filtered = data.phrases.filter(p => {
+            if (!term) return true;
+            return p.de.toLowerCase().includes(term) || p.tags.some(tag => tag.includes(term));
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div style="text-align: center; padding: 40px 20px; color: var(--text-light);">Keine Treffer für "${searchTerm}"</div>`;
+            return;
+        }
+
+        // Group by Category
+        const grouped = filtered.reduce((acc, phrase) => {
+            if (!acc[phrase.cat]) acc[phrase.cat] = [];
+            acc[phrase.cat].push(phrase);
+            return acc;
+        }, {});
+
+        // Build DOM
+        Object.keys(grouped).forEach((categoryName, index) => {
+            // Wenn gesucht wird, alles anzeigen/öffnen. Wenn nicht gesucht wird, alles einklappen.
+            const isOpen = term.length > 0;
+
+            const catWrapper = document.createElement('div');
+            
+            // Header (Clickable Accordion)
+            const header = document.createElement('div');
+            header.className = `category-header ${isOpen ? 'open' : ''}`;
+            header.innerHTML = `
+                <span>${categoryName}</span>
+                <span class="chevron">▼</span>
+            `;
+            
+            // Content Box
+            const content = document.createElement('div');
+            content.className = `category-content ${isOpen ? 'open' : ''}`;
+            
+            // Toggle Logic
+            header.onclick = () => {
+                const currentlyOpen = content.classList.contains('open');
+                content.classList.toggle('open');
+                header.classList.toggle('open');
+                
+                // Optional: Auto-close others (Accordion Style)
+                // if(!currentlyOpen) {
+                //    document.querySelectorAll('.category-content').forEach(c => { if(c !== content) c.classList.remove('open') });
+                //    document.querySelectorAll('.category-header').forEach(h => { if(h !== header) h.classList.remove('open') });
+                // }
+            };
+
+            // Add Phrases to Content
+            grouped[categoryName].forEach(p => {
+                const targetText = p[currentLang] || "Übersetzung fehlt";
+                const safeTargetText = targetText.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                
+                const card = document.createElement('div');
+                card.className = 'phrase-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="german">${p.de}</div>
+                        <div class="target-lang ${textDirection}">${targetText}</div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="action-btn play" onclick="speakText('${safeTargetText}', '${langInfo.code}')" title="Vorlesen">🔊</button>
+                    </div>
+                `;
+                content.appendChild(card);
+            });
+
+            catWrapper.appendChild(header);
+            catWrapper.appendChild(content);
+            container.appendChild(catWrapper);
+        });
+    }
+
+    function updatePatientModeUI() {
+        const uiText = data.languages[currentLang].ui;
+        document.getElementById('pm-yes-text').innerText = uiText.yes;
+        document.getElementById('pm-no-text').innerText = uiText.no;
+        document.getElementById('pm-idk-text').innerText = uiText.idk;
+    }
+
+    function switchTab(tab, element) {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if(element) element.classList.add('active');
+
+        document.getElementById('phrasesView').style.display = tab === 'phrases' ? 'block' : 'none';
+        document.getElementById('freeTextView').style.display = tab === 'freetext' ? 'flex' : 'none';
+        document.getElementById('patientModeView').style.display = tab === 'patient' ? 'flex' : 'none';
+        
+        // Searchbar verbergen wenn wir nicht in den Phrasen sind
+        document.getElementById('searchBox').style.display = tab === 'phrases' ? 'block' : 'none';
+    }
+
+    function handlePatientAnswer(answerGerman, color) {
+        if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+        
+        const overlay = document.getElementById('answerOverlay');
+        overlay.style.backgroundColor = color;
+        overlay.innerText = answerGerman;
+        overlay.classList.add('show');
+        
+        setTimeout(() => { overlay.classList.remove('show'); }, 2000);
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance("Patient sagt: " + answerGerman);
+            msg.lang = 'de-DE';
+            window.speechSynthesis.speak(msg);
+        }
+    }
+
+    function initSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRec();
+            recognition.lang = 'de-DE';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                document.getElementById('micBtn').classList.add('recording');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('freeTextInput').value = transcript;
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Sprachfehler", event.error);
+                stopDictation();
+            };
+            recognition.onend = () => stopDictation();
+        } else {
+            document.getElementById('micBtn').style.display = 'none';
+        }
+    }
+
+    function toggleDictation() {
+        if (!recognition) return alert("Browser unterstützt Spracheingabe nicht (nutze Chrome/Safari).");
+        if (isRecording) { recognition.stop(); } 
+        else { document.getElementById('freeTextInput').value = ''; recognition.start(); }
+    }
+
+    function stopDictation() {
+        isRecording = false;
+        document.getElementById('micBtn').classList.remove('recording');
+    }
+
+    async function translateAndSpeak() {
+        const text = document.getElementById('freeTextInput').value.trim();
+        if (!text) return;
+
+        const langInfo = data.languages[currentLang];
+        const targetLangShort = langInfo.code.split('-')[0];
+        
+        document.getElementById('translateText').style.display = 'none';
+        document.getElementById('translateLoader').style.display = 'block';
+        document.getElementById('translationResult').style.display = 'none';
+
+        try {
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=de|${targetLangShort}`);
+            const json = await response.json();
+            
+            if (json.responseStatus === 200) {
+                const translatedText = json.responseData.translatedText;
+                document.getElementById('resGerman').innerText = text;
+                const targetDiv = document.getElementById('resTarget');
+                targetDiv.innerText = translatedText;
+                targetDiv.className = `target-lang ${langInfo.rtl ? 'rtl' : 'ltr'}`;
+                
+                document.getElementById('translationResult').style.display = 'block';
+                speakText(translatedText, langInfo.code);
+            }
+        } catch (error) {
+            alert("Keine Internetverbindung für Live-Übersetzung.");
+        } finally {
+            document.getElementById('translateText').style.display = 'inline';
+            document.getElementById('translateLoader').style.display = 'none';
+        }
+    }
+
+    function speakResultText() {
+        speakText(document.getElementById('resTarget').innerText, data.languages[currentLang].code);
+    }
+
+    function speakText(text, langCode) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = langCode;
+            utterance.rate = 0.85;
+            window.speechSynthesis.speak(utterance);
+        } else {
+            alert("Dein Browser unterstützt keine Sprachausgabe.");
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
