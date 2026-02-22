@@ -284,7 +284,7 @@
         .nav-icon { font-size: 1.8rem; transition: transform 0.2s; }
         .nav-item.active .nav-icon { transform: translateY(-4px); }
 
-        /* Overlay */
+        /* Overlay & Toast Notifications */
         #answerOverlay {
             position: fixed;
             top: 0;
@@ -306,6 +306,36 @@
         }
         #answerOverlay.show { opacity: 1; }
 
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { border-left: 5px solid #e74c3c; }
+
         .hidden { display: none !important; }
         .rtl { direction: rtl; text-align: right; }
         .loader { border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 28px; height: 28px; animation: spin 1s linear infinite; display: none; }
@@ -315,11 +345,13 @@
 </head>
 <body>
 
+<div id="toastContainer"></div>
+
 <div class="top-bar liquid-glass">
     <h1 class="header-title">ER QuickTranslate Pro</h1>
     <div class="search-container">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Suchen (z.B. Sturz, Schmerz, Meds...)" autocomplete="off">
+        <input type="text" id="searchInput" placeholder="Suchen (z.B. Sturz, Schmerz, Warten...)" autocomplete="off">
     </div>
     <div class="lang-scroll" id="langNav"></div>
 </div>
@@ -405,37 +437,38 @@
             // --- 1. TRIAGE & BEGRÜSSUNG ---
             { id: 1, cat: "1. Triage & Begrüßung", tags: ["hallo", "arzt", "pflege"], de: "Hallo, ich bin Pflegekraft. Ein Arzt kommt gleich.", en: "Hello, I am a nurse. A doctor will be here shortly.", ar: "مرحباً، أنا ممرض. سيأتي الطبيب قريباً.", fa: "سلام، من پرستار هستم. دکتر به زودي می‌آید.", tr: "Merhaba, ben hemşireyim. Doktor birazdan gelecek.", ru: "Здравствуйте, я медсестра. Врач скоро придет.", uk: "Доброго дня, я медсестра. Лікар скоро прийде.", pl: "Dzień dobry, jestem pielęgniarką. Lekarz zaraz przyjdzie.", ro: "Bună, sunt asistent. Un medic va veni curând.", fr: "Bonjour, je suis infirmier. Un médecin arrive." },
             { id: 2, cat: "1. Triage & Begrüßung", tags: ["ausweis", "karte"], de: "Haben Sie Ihren Ausweis oder die Krankenkarte dabei?", en: "Do you have your ID or health insurance card?", ar: "هل معك هويتك أو بطاقة التأمين الصحي؟", fa: "کارت شناسایی یا کارت بیمه همراه دارید؟", tr: "Kimliğiniz yanınızda mı?", ru: "У вас есть паспорт?", uk: "У вас є паспорт?", pl: "Czy ma pan/pani dowód?", ro: "Aveți actul de identitate?", fr: "Avez-vous votre carte d'identité?" },
-            { id: 4, cat: "1. Triage & Begrüßung", tags: ["nüchtern", "essen"], de: "Bitte essen und trinken Sie vorerst nichts mehr.", en: "Please do not eat or drink anything for now.", ar: "يرجى عدم تناول الطعام أو الشراب الآن.", fa: "لطفا فعلا چیزی نخورید و ننوشید.", tr: "Lütfen bir şey yiyip içmeyin.", ru: "Пока не ешьte и не пейте.", uk: "Поки нічого не їжte и nicht пийте.", pl: "Proszę nic nie jeść ani nie pić.", ro: "Nu mâncați și nu beți nimic.", fr: "Ne mangez et ne buvez rien." },
-
+            
             // --- 2. SCHMERZEN ---
             { id: 5, cat: "2. Schmerzanamnese", tags: ["schmerz", "weh"], de: "Haben Sie Schmerzen?", en: "Are you in pain?", ar: "هل تشعر بألم؟", fa: "آیا درد دارید؟", tr: "Ağrınız var mı?", ru: "У вас что-то болит?", uk: "У вас щось болить?", pl: "Czy coś boli?", ro: "Aveți dureri?", fr: "Avez-vous mal?" },
-            { id: 6, cat: "2. Schmerzanamnese", tags: ["wo", "zeigen"], de: "Zeigen Sie mit einem Finger, wo es am meisten weh tut.", en: "Point with one finger to where it hurts most.", ar: "أشر بإصبع واحد إلى مكان الألم.", fa: "با یک انگشت نشان دهید کجا درد می کند.", tr: "En çok nerenin ağrıdığını gösterin.", ru: "Покажите пальцем, где болит.", uk: "Покажіть пальцем, де болить.", pl: "Proszę pokazać palцем, gdzie boli.", ro: "Arătați cu un deget unde doare.", fr: "Montrez avec un doigt où vous avez mal." },
-            { id: 7, cat: "2. Schmerzanamnese", tags: ["skala", "stark"], de: "Auf einer Skala von 0 bis 10, wie stark ist der Schmerz?", en: "On a scale from 0 to 10, how bad is the pain?", ar: "على مقياس من 0 إلى 10، ما مدى الألم؟", fa: "در مقیاس 0 تا 10، درد چقدر شدید است؟", tr: "0 ile 10 arası ağrınız ne kadar?", ru: "По шкале от 0 до 10, какая боль?", uk: "За шкалою від 0 до 10, який біль?", pl: "W skali od 0 do 10, jak boli?", ro: "Pe o scară de la 0 la 10, cât de tare doare?", fr: "Sur une échelle de 0 à 10, à quel point avez-vous mal?" },
-
+            { id: 6, cat: "2. Schmerzanamnese", tags: ["wo", "zeigen"], de: "Zeigen Sie mit einem Finger, wo es am meisten weh tut.", en: "Point with one finger to where it hurts most.", ar: "أشر بإصبع واحد إلى مكان الألم.", fa: "با یک انگشت نشان دهید کجا درد می کند.", tr: "En çok nerenin ağrıdığını gösterin.", ru: "Покажите пальцем, где болит.", uk: "Покажіть пальцем, де болить.", pl: "Proszę pokazać palcem, gdzie boli.", ro: "Arătați cu un deget unde doare.", fr: "Montrez avec un doigt où vous avez mal." },
+            
             // --- 3. ATEMWEGE ---
             { id: 9, cat: "3. Atemwege & Herz", tags: ["atemnot", "luft"], de: "Haben Sie Atemnot oder keine Luft?", en: "Do you have shortness of breath?", ar: "هل تعاني من ضيق في التنفس؟", fa: "آیا تنگی نفس دارید؟", tr: "Nefes darlığınız var mı?", ru: "Вам трудно дышать?", uk: "Вам важко дихати?", pl: "Czy ma pan/pani duszności?", ro: "Aveți dificultăți de respirație?", fr: "Avez-vous du mal à respirer?" },
-            { id: 10, cat: "3. Atemwege & Herz", tags: ["druck", "brust"], de: "Spüren Sie einen Druck in der Brust?", en: "Do you feel pressure in your chest?", ar: "هل تشعر بضغط في صدرك؟", fa: "آیا در قفسه سینه احساس فشار می کنید؟", tr: "Göğsünüzde baskı var mı?", ru: "Вы чувствуете давление в груди?", uk: "Ви відчуваєте тиск у грудях?", pl: "Czy czuje pan/pani ucisk w klatce?", ro: "Simțiți presiune în piept?", fr: "Sentez-vous une pression dans la poitrine?" },
 
-            // --- 4. NEURO ---
-            { id: 11, cat: "4. Neurologie & Kopf", tags: ["schwindel", "drehen"], de: "Ist Ihnen schwindelig? Dreht sich alles?", en: "Do you feel dizzy?", ar: "هل تشعر بالدوار؟", fa: "آیا سرگیجه دارید؟", tr: "Başınız dönüyor mu?", ru: "У вас кружится голова?", uk: "У вас паморочиться голова?", pl: "Czy kręci się w głowie?", ro: "Sunteți amețit?", fr: "Avez-vous des vertiges?" },
-
-            // --- 5. MAGEN & DARM (Eingefügt) ---
+            // --- 5. MAGEN & DARM ---
             { id: 13, cat: "5. Magen & Darm", tags: ["übel", "erbrechen", "bauch"], de: "Ist Ihnen übel oder haben Sie erbrochen?", en: "Are you nauseous or have you vomited?", ar: "هل تشعر بالغثيان أو تقيأت؟", fa: "آیا حالت تهوع دارید یا استفراغ کرده اید؟", tr: "Mideniz bulanıyor mu veya kustunuz mu?", ru: "Вас тошнит или вы рвали?", uk: "Вас нудить або ви блювали?", pl: "Czy ma pan/pani mdłości lub wymioty?", ro: "Vă este greață sau ați vomitat?", fr: "Avez-vous des nausées ou avez-vous vomi?" },
-            { id: 25, cat: "5. Magen & Darm", tags: ["durchfall", "stuhl"], de: "Haben Sie Durchfall oder Probleme beim Stuhlgang?", en: "Do you have diarrhea or problems with bowel movements?", ar: "هل تعاني من الإسهال أو مشاكل في التبرز؟", fa: "آیا اسهال دارید یا در اجابت مزاج مشکل دارید؟", tr: "İshaliniz mi var yoksa dışkılama sorunu mu yaşıyorsunuz?", ru: "У вас диарея или проблемы со стулом?", uk: "У вас діарея або проблеми зі стільцем?", pl: "Czy ma pan/pani biegunkę lub problemy z wypróżnianiem?", ro: "Aveți diaree sau probleme cu scaunul?", fr: "Avez-vous de la diarrhée ou des problèmes de selle?" },
-            { id: 26, cat: "5. Magen & Darm", tags: ["blut", "stuhl"], de: "Haben Sie Blut im Stuhl gesehen?", en: "Have you seen blood in your stool?", ar: "هل رأيت دماً في برازك؟", fa: "آیا در مدفوع خود خون دیده اید؟", tr: "Dışkınızda kan gördünüz mü?", ru: "Вы видели кровь в стуле?", uk: "Ви бачили кров у калі?", pl: "Czy widział(a) pan/pani krew w stolcu?", ro: "Ați văzut sânge în scaun?", fr: "Avez-vous vu du sang dans vos selles?" },
 
             // --- 6. UNFALL & VERLETZUNG ---
             { id: 21, cat: "6. Unfall & Verletzung", tags: ["sturz", "gefallen"], de: "Sind Sie gestürzt oder hingefallen?", en: "Did you fall or trip?", ar: "هل سقطت أو تعثرت؟", fa: "آیا زمین خوردید؟", tr: "Düştünüz mü?", ru: "Вы упали?", uk: "Ви впали?", pl: "Czy pan/pani upadł/a?", ro: "Ați căzut?", fr: "Êtes-vous tombé?" },
-            { id: 22, cat: "6. Unfall & Verletzung", tags: ["kopf", "schlag"], de: "Haben Sie sich den Kopf gestoßen?", en: "Did you hit your head?", ar: "هل ضربت رأسك؟", fa: "آیا سرتان به جایی خورد؟", tr: "Kafanızı çarptınız mı?", ru: "Вы ударились головой?", uk: "Ви вдарилися головою?", pl: "Czy uderzył/a się pan/pani w głowę?", ro: "V-ați lovit la cap?", fr: "Vous êtes-vous cogné la tête?" },
-            { id: 23, cat: "6. Unfall & Verletzung", tags: ["blutung", "wunde"], de: "Haben Sie eine offene oder blutende Wunde?", en: "Do you have an open or bleeding wound?", ar: "هل لديك جرح مفتوح أو ينزف؟", fa: "آیا زخم باز oder خونریزی دهنده دارید؟", tr: "Açık veya kanayan bir yaranız var mı?", ru: "У вас есть открытая или кровоточащая рана?", uk: "У вас є відкрита або кровоточива рана?", pl: "Czy ma pan/pani otwartą lub krwawiącą ranę?", ro: "Aveți o rană deschisă sau care sângerează?", fr: "Avez-vous une plaie ouverte ou qui saigne?" },
-            { id: 24, cat: "6. Unfall & Verletzung", tags: ["tetanus", "impfung"], de: "Wann war Ihre letzte Tetanus-Impfung?", en: "When was your last tetanus shot?", ar: "متى كانت آخر حقنة تيتانوس لك؟", fa: "آخرین واکسن کزاز شما کی بود؟", tr: "Son tetanos aşınız ne zamandı?", ru: "Когда вам последний раз делали прививку от столбняка?", uk: "Коли вам востаннє робили щеплення від правця?", pl: "Kiedy było ostatnie szczepienie na tężec?", ro: "Când ați făcut ultimul vaccin antitetanos?", fr: "À quand remonte votre dernier vaccin contre le tétanos?" },
 
             // --- 7. VORGESCHICHTE ---
             { id: 14, cat: "7. Vorgeschichte & Medikamente", tags: ["blutverdünner"], de: "Nehmen Sie Blutverdünner? (Marcumar, Xarelto, Eliquis)", en: "Do you take blood thinners?", ar: "هل تتناول مسيلات الدم؟", fa: "آیا داروهای رقیق کننده خون مصرف می کنید؟", tr: "Kan sulandırıcı kullanıyor musunuz?", ru: "Вы принимаете препараты для разжижения крови?", uk: "Ви приймаєте препарати для розрідження крові?", pl: "Czy bierze pan/pani leki na rozrzedzenie?", ro: "Luați anticoagulante?", fr: "Prenez-vous des anticoagulants?" },
+            { id: 30, cat: "7. Vorgeschichte & Medikamente", tags: ["schrittmacher", "hörgerät", "prothese"], de: "Haben Sie Zahnersatz, ein Hörgerät oder einen Herzschrittmacher?", en: "Do you have dentures, a hearing aid or a pacemaker?", ar: "هل لديك طقم أسنان، سماعة أذن أو جهاز تنظيم ضربات القلب؟", fa: "آیا دندان مصنوعی، سمعک یا ضربان ساز قلب دارید؟", tr: "Takma dişiniz, işitme cihazınız veya kalp piliniz var mı?", ru: "У вас есть зубные протезы, слуховой аппарат или кардиостимулятор?", uk: "У вас є зубні протези, слуховий апарат або кардіостимулятор?", pl: "Czy ma pan/pani protezę, aparat słuchowy lub rozrusznik?", ro: "Aveți proteză dentară, aparat auditiv sau stimulator cardiac?", fr: "Avez-vous un dentier, un appareil auditif ou un stimulateur cardiaque?" },
 
             // --- 8. ANWEISUNGEN ---
             { id: 17, cat: "8. Untersuchung & Anweisungen", tags: ["ausziehen"], de: "Bitte machen Sie den Oberkörper frei.", en: "Please strip to the waist.", ar: "يرجى خلع ملابسك من الأعلى.", fa: "لطفا بالاتنه خود را برهنه کنید.", tr: "Üstünüzü çıkarın.", ru: "Разденьтесь до пояса.", uk: "Роздягніться до пояса.", pl: "Proszę się rozebrać do pasa.", ro: "Dezbrăcați-vă până la brâu.", fr: "Déshabillez-vous jusqu'à la taille." },
-            { id: 20, cat: "8. Untersuchung & Anweisungen", tags: ["blutabnahme"], de: "Ich nehme Ihnen jetzt Blut ab. Es piekst kurz.", en: "I'll draw blood now. A small prick.", ar: "سأسحب الدم الآن.", fa: "الان خون میگیرم.", tr: "Kan alacağım.", ru: "Я возьму кровь.", uk: "Я візьму кров.", pl: "Pobiorę krew.", ro: "Vă iau sânge.", fr: "Je vais faire une prise de sang." }
+            { id: 31, cat: "8. Untersuchung & Anweisungen", tags: ["arm", "strecken", "faust"], de: "Bitte den Arm strecken und eine Faust machen.", en: "Please extend your arm and make a fist.", ar: "يرجى مد ذراعك وإغلاق قبضة يدك.", fa: "لطفا بازوی خود را دراز کنید و مشت کنید.", tr: "Lütfen kolunuzu uzatın ve yumruk yapın.", ru: "Пожалуйста, вытяните руку и сожмите кулак.", uk: "Будь ласка, витягніть руку і стисніть кулак.", pl: "Proszę wyciągnąć ramię i zacisnąć pięść.", ro: "Vă rugăm să întindeți brațul și să faceți un pumn.", fr: "Veuillez tendre le bras et serrer le poing." },
+
+            // --- 9. ABLAUF & WARTEN (NEU) ---
+            { id: 32, cat: "9. Ablauf & Warten", tags: ["warten", "geduld", "notfall"], de: "Bitte haben Sie Geduld. Schwerere Notfälle werden zuerst behandelt.", en: "Please be patient. Severe emergencies are treated first.", ar: "يرجى التحلي بالصبر. يتم علاج الحالات الطارئة الشديدة أولاً.", fa: "لطفا صبور باشید. موارد اورژانسی شدیدتر ابتدا درمان می شوند.", tr: "Lütfen sabırlı olun. Ağır acil vakalar önce tedavi edilir.", ru: "Пожалуйста, будьте терпеливы. Тяжелые случаи обслуживаются в первую очередь.", uk: "Будь ласка, будьте терплячі. Важкі випадки обслуговуються в першу чергу.", pl: "Proszę o cierpliwość. Ciężkie przypadki są leczone w pierwszej kolejności.", ro: "Vă rugăm să aveți răbdare. Urgențele severe sunt tratate primele.", fr: "Veuillez patienter. Les urgences graves sont traitées en premier." },
+            { id: 33, cat: "9. Ablauf & Warten", tags: ["blutwerte", "labor", "dauert"], de: "Die Blutwerte dauern etwa eine Stunde.", en: "Blood results take about an hour.", ar: "نتائج فحص الدم تستغرق حوالي ساعة.", fa: "جواب آزمایش خون حدود یک ساعت طول می کشد.", tr: "Kan sonuçları yaklaşık bir saat sürer.", ru: "Результаты анализа крови будут готовы примерно через час.", uk: "Результати аналізу крові будуть готові приблизно через годину.", pl: "Wyniki krwi będą za około godzinę.", ro: "Rezultatele analizelor de sânge durează aproximativ o oră.", fr: "Les résultats sanguins prennent environ une heure." },
+            { id: 34, cat: "9. Ablauf & Warten", tags: ["entlassung", "nach hause", "brief"], de: "Der Arztbrief ist fertig. Sie können nach Hause gehen.", en: "The discharge letter is ready. You can go home.", ar: "تقرير الخروج جاهز. يمكنك الذهاب إلى المنزل.", fa: "نامه ترخیص آماده است. می توانید به خانه بروید.", tr: "Taburcu raporunuz hazır. Eve gidebilirsiniz.", ru: "Выписка готова. Вы можете идти домой.", uk: "Виписка готова. Ви можете йти додому.", pl: "Wypis jest gotowy. Może pan/pani iść do domu.", ro: "Scrisoarea de externare este gata. Puteți pleca acasă.", fr: "La lettre de sortie est prête. Vous pouvez rentrer chez vous." },
+
+            // --- 10. PFLEGE & BEDÜRFNISSE (NEU) ---
+            { id: 35, cat: "10. Pflege & Bedürfnisse", tags: ["klingel", "hilfe"], de: "Hier ist die Klingel. Drücken Sie, wenn Sie Hilfe brauchen.", en: "Here is the call button. Press it if you need help.", ar: "هنا جرس النداء. اضغط عليه إذا كنت بحاجة إلى مساعدة.", fa: "این زنگ احضار پرستار است. اگر کمک می خواهید آن را فشار دهید.", tr: "İşte çağrı zili. Yardıma ihtiyacınız olursa basın.", ru: "Вот кнопка вызова. Нажмите, если вам нужна помощь.", uk: "Ось кнопка виклику. Натисніть, якщо вам потрібна допомога.", pl: "Tutaj jest dzwonek. Proszę nacisnąć, jeśli potrzebuje pan/pani pomocy.", ro: "Aici este butonul de apel. Apăsați-l dacă aveți nevoie de ajutor.", fr: "Voici la sonnette. Appuyez si vous avez besoin d'aide." },
+            { id: 36, cat: "10. Pflege & Bedürfnisse", tags: ["toilette", "klo", "urin"], de: "Müssen Sie auf die Toilette?", en: "Do you need to use the toilet?", ar: "هل تحتاج إلى استخدام المرحاض؟", fa: "آیا باید به دستشویی بروید؟", tr: "Tuvalete gitmeniz gerekiyor mu?", ru: "Вам нужно в туалет?", uk: "Вам потрібно в туалет?", pl: "Czy musi pan/pani iść do toalety?", ro: "Trebuie să mergeți la toaletă?", fr: "Avez-vous besoin d'aller aux toilettes?" },
+            { id: 37, cat: "10. Pflege & Bedürfnisse", tags: ["aufstehen", "liegen bleiben"], de: "Bitte bleiben Sie im Bett liegen. Sie dürfen nicht alleine aufstehen.", en: "Please stay in bed. You must not get up alone.", ar: "يرجى البقاء في السرير. يجب ألا تنهض بمفردك.", fa: "لطفا در رختخواب بمانید. نباید تنهایی بلند شوید.", tr: "Lütfen yatakta kalın. Tek başınıza kalkmamalısınız.", ru: "Пожалуйста, оставайтесь в постели. Вам нельзя вставать самостоятельно.", uk: "Будь ласка, залишайтеся в ліжку. Вам не можна вставати самостійно.", pl: "Proszę zostać w łóżku. Nie wolno wstawać samemu.", ro: "Vă rugăm să rămâneți în pat. Nu trebuie să vă ridicați singur.", fr: "Veuillez rester au lit. Vous ne devez pas vous lever seul." },
+            { id: 38, cat: "10. Pflege & Bedürfnisse", tags: ["kalt", "decke", "frieren"], de: "Ist Ihnen kalt? Brauchen Sie eine Decke?", en: "Are you cold? Do you need a blanket?", ar: "هل تشعر بالبرد؟ هل تحتاج إلى بطانية؟", fa: "آیا سردتان است؟ پتو می خواهید؟", tr: "Üşüyor musunuz? Battaniyeye ihtiyacınız var mı?", ru: "Вам холодно? Вам нужно одеяло?", uk: "Вам холодно? Вам потрібна ковдра?", pl: "Czy jest panu/pani zimno? Potrzebuje pan/pani koca?", ro: "Vă este frig? Aveți nevoie de o pătură?", fr: "Avez-vous froid? Avez-vous besoin d'une couverture?" }
         ]
     };
 
@@ -443,6 +476,23 @@
     let favorites = JSON.parse(localStorage.getItem('er_favs') || '[]');
     let recognition = null;
     let isRecording = false;
+
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+        toast.innerText = message;
+        container.appendChild(toast);
+        
+        // Reflow for transition
+        toast.offsetHeight;
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
 
     function init() {
         const nav = document.getElementById('langNav');
@@ -492,10 +542,11 @@
             card.className = 'phrase-card liquid-glass';
             const isFav = favorites.includes(p.id);
             const targetText = p[currentLang] || "...";
+            // Ensure proper RTL display format within the HTML element
             card.innerHTML = `
                 <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFav(${p.id})">★</button>
                 <div class="german">${p.de}</div>
-                <div class="target-lang ${langInfo.rtl ? 'rtl' : ''}">${targetText}</div>
+                <div class="target-lang ${langInfo.rtl ? 'rtl' : ''}" ${langInfo.rtl ? 'dir="rtl"' : ''}>${targetText}</div>
                 <div class="card-actions">
                     <button class="action-btn play" onclick="speak('${targetText.replace(/'/g, "\\'")}', '${langInfo.code}')">🔊</button>
                 </div>`;
@@ -536,18 +587,64 @@
             const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=de|${lang}`);
             const json = await res.json(); const translated = json.responseData.translatedText;
             document.getElementById('resGerman').innerText = text; document.getElementById('resTarget').innerText = translated;
-            document.getElementById('resTarget').className = `target-lang ${data.languages[currentLang].rtl ? 'rtl' : ''}`;
+            
+            const targetEl = document.getElementById('resTarget');
+            targetEl.className = `target-lang ${data.languages[currentLang].rtl ? 'rtl' : ''}`;
+            if(data.languages[currentLang].rtl) { targetEl.setAttribute('dir', 'rtl'); } else { targetEl.removeAttribute('dir'); }
+            
             document.getElementById('translationResult').classList.remove('hidden'); speak(translated, data.languages[currentLang].code);
-        } catch (e) { alert("Internet nötig."); }
+        } catch (e) { showToast("Internetverbindung für Live-Übersetzung nötig.", "error"); }
         finally { label.classList.remove('hidden'); loader.style.display = 'none'; }
     }
 
-    function speak(text, code) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = code; u.rate = 0.85; window.speechSynthesis.speak(u); }
+    function speak(text, code) { 
+        window.speechSynthesis.cancel(); 
+        
+        // Check if the browser actually has a voice for this language
+        const voices = window.speechSynthesis.getVoices();
+        const shortCode = code.split('-')[0];
+        const hasVoice = voices.some(v => v.lang.startsWith(shortCode) || v.lang.startsWith(code));
+        
+        if (voices.length > 0 && !hasVoice) {
+            showToast(`Dein Gerät hat leider keine ${data.languages[currentLang].name}-Stimme installiert. Bitte zeige dem Patienten den Text.`, 'error');
+            return;
+        }
+
+        const u = new SpeechSynthesisUtterance(text); 
+        u.lang = code; 
+        u.rate = 0.85; 
+        window.speechSynthesis.speak(u); 
+    }
+    
     function speakDe(text) { const u = new SpeechSynthesisUtterance(text); u.lang = 'de-DE'; window.speechSynthesis.speak(u); }
     function speakResultText() { speak(document.getElementById('resTarget').innerText, data.languages[currentLang].code); }
-    function initSpeech() { const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition; if (SpeechRec) { recognition = new SpeechRec(); recognition.lang = 'de-DE'; recognition.onresult = (e) => document.getElementById('freeTextInput').value = e.results[0][0].transcript; recognition.onend = () => { isRecording = false; document.getElementById('micBtn').classList.remove('recording'); }; } }
-    function toggleDictation() { if (!recognition) return alert("Nicht unterstützt."); if (isRecording) { recognition.stop(); } else { isRecording = true; document.getElementById('micBtn').classList.add('recording'); recognition.start(); } }
-    function updatePatientUI() { const ui = data.languages[currentLang].ui; document.getElementById('pm-yes-text').innerText = ui.yes; document.getElementById('pm-no-text').innerText = ui.no; document.getElementById('pm-idk-text').innerText = ui.idk; }
+    
+    function initSpeech() { 
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition; 
+        if (SpeechRec) { 
+            recognition = new SpeechRec(); 
+            recognition.lang = 'de-DE'; 
+            recognition.onresult = (e) => document.getElementById('freeTextInput').value = e.results[0][0].transcript; 
+            recognition.onend = () => { isRecording = false; document.getElementById('micBtn').classList.remove('recording'); }; 
+        } 
+    }
+    
+    function toggleDictation() { 
+        if (!recognition) return showToast("Dein Browser unterstützt keine Spracheingabe.", "error"); 
+        if (isRecording) { recognition.stop(); } else { isRecording = true; document.getElementById('micBtn').classList.add('recording'); recognition.start(); } 
+    }
+    
+    function updatePatientUI() { 
+        const ui = data.languages[currentLang].ui; 
+        document.getElementById('pm-yes-text').innerText = ui.yes; 
+        document.getElementById('pm-no-text').innerText = ui.no; 
+        document.getElementById('pm-idk-text').innerText = ui.idk; 
+    }
+
+    // Initialize voices once to ensure they are loaded
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
 
     init();
 </script>
