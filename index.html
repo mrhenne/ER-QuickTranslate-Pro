@@ -12,8 +12,8 @@
             --helios-green: #82bc00;
             --helios-dark-green: #6a9a00;
             --bg-color: #f0f4f8;
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.5);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
             --text-dark: #1a202c;
             --text-light: #718096;
             --safe-area-bottom: env(safe-area-inset-bottom, 0px);
@@ -26,7 +26,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: radial-gradient(circle at top right, #e2e8f0, #f0f4f8);
+            background: linear-gradient(135deg, #e2e8f0 0%, #f0f4f8 100%);
             margin: 0;
             padding: 0;
             color: var(--text-dark);
@@ -37,13 +37,12 @@
             overflow: hidden;
         }
 
-        /* Liquid Glass Design Elements */
         .liquid-glass {
             background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
         }
 
         /* Top Bar */
@@ -57,11 +56,11 @@
         .header-title {
             color: var(--helios-dark-green);
             margin: 0 0 10px 0;
-            font-size: 1rem;
-            font-weight: 800;
+            font-size: 0.9rem;
+            font-weight: 900;
             text-align: center;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
         }
 
         .search-container {
@@ -72,19 +71,17 @@
         #searchInput {
             width: 100%;
             padding: 14px 15px 14px 45px;
+            border-radius: 18px;
             border: 1px solid var(--glass-border);
-            border-radius: 16px;
             font-size: 1.1rem;
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
         }
 
         #searchInput:focus {
             outline: none;
-            background: #ffffff;
-            border-color: var(--helios-green);
-            box-shadow: 0 0 0 4px rgba(130, 188, 0, 0.15);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(130, 188, 0, 0.2);
         }
 
         .search-icon {
@@ -93,7 +90,7 @@
             top: 50%;
             transform: translateY(-50%);
             font-size: 1.2rem;
-            opacity: 0.6;
+            opacity: 0.5;
         }
 
         .lang-scroll {
@@ -106,12 +103,12 @@
         .lang-scroll::-webkit-scrollbar { display: none; }
 
         .lang-btn {
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.4);
             border: 1px solid var(--glass-border);
-            padding: 10px 16px;
-            border-radius: 24px;
+            padding: 10px 18px;
+            border-radius: 25px;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 700;
             white-space: nowrap;
             display: flex;
             align-items: center;
@@ -123,224 +120,111 @@
             background: var(--helios-green);
             color: white;
             border-color: var(--helios-green);
-            box-shadow: 0 4px 12px rgba(130, 188, 0, 0.3);
-            transform: translateY(-2px);
+            transform: scale(1.05);
         }
 
-        /* Content Area */
+        /* Content */
         .main-content {
             flex-grow: 1;
             overflow-y: auto;
-            padding: 10px 16px calc(100px + var(--safe-area-bottom));
-            scroll-behavior: smooth;
+            padding: 10px 16px calc(110px + var(--safe-area-bottom));
         }
 
-        /* Category / Accordion */
         .category-header {
             padding: 18px 20px;
-            border-radius: 18px;
-            margin-top: 14px;
+            border-radius: 20px;
+            margin-top: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: 700;
-            font-size: 1rem;
+            font-weight: 800;
             color: var(--helios-dark-green);
             cursor: pointer;
-            transition: transform 0.2s;
         }
-        .category-header:active { transform: scale(0.98); }
-        .category-header.fav-header { border-left: 6px solid #ffcc00; }
-        .category-header .chevron { transition: transform 0.3s; color: var(--helios-green); }
+        .category-header.fav-header { border-left: 8px solid #ffcc00; color: #b8860b; }
+        .category-header .chevron { transition: transform 0.3s; }
         .category-header.open .chevron { transform: rotate(180deg); }
 
         .category-content { display: none; padding: 10px 0; }
         .category-content.open { display: block; }
 
-        /* Phrase Card */
         .phrase-card {
-            border-radius: 20px;
+            border-radius: 22px;
             padding: 20px;
-            margin-bottom: 16px;
+            margin-bottom: 15px;
             border-left: 6px solid var(--helios-green);
             position: relative;
-            transition: all 0.2s;
         }
 
         .fav-btn {
             position: absolute;
-            top: 18px;
-            right: 18px;
+            top: 15px;
+            right: 15px;
             background: transparent;
             border: none;
             font-size: 1.6rem;
             color: #cbd5e0;
             padding: 5px;
-            z-index: 5;
         }
         .fav-btn.active { color: #ffcc00; }
 
-        .german { font-size: 0.85rem; color: var(--text-light); font-weight: 600; margin-bottom: 6px; padding-right: 40px; }
-        .target-lang { font-size: 1.3rem; font-weight: 700; line-height: 1.4; color: #1a202c; }
+        .german { font-size: 0.8rem; color: var(--text-light); font-weight: 700; margin-bottom: 5px; }
+        .target-lang { font-size: 1.3rem; font-weight: 800; line-height: 1.4; color: var(--text-dark); }
 
         .card-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 14px;
-            margin-top: 14px;
-            padding-top: 14px;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
             border-top: 1px solid rgba(0,0,0,0.05);
         }
 
         .action-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 16px;
+            width: 55px;
+            height: 55px;
+            border-radius: 18px;
             border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.6);
-            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 1.6rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
         .action-btn.play { background: var(--helios-green); color: white; border: none; }
-        .action-btn:active { transform: scale(0.92); }
 
-        /* Patient Answer Board */
-        .pain-board {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-            width: 100%;
-            margin-top: 25px;
-        }
-        .pain-item {
-            border-radius: 20px;
-            padding: 25px 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            font-weight: 800;
-        }
-        .pain-emoji { font-size: 2.5rem; }
+        /* Patient View */
+        .pain-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
+        .pain-item { border-radius: 20px; padding: 25px 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; font-weight: 900; }
+        .pain-emoji { font-size: 2.8rem; }
 
-        /* Freitext Area */
+        /* Freitext */
         #freeTextInput {
-            width: 100%;
-            height: 180px;
-            padding: 20px;
-            border-radius: 22px;
-            border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.8);
-            font-size: 1.1rem;
-            font-family: inherit;
-            resize: none;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+            width: 100%; height: 200px; padding: 20px; border-radius: 25px; border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.6); font-size: 1.2rem; resize: none;
         }
+        .mic-btn { position: absolute; bottom: 20px; right: 20px; width: 65px; height: 65px; border-radius: 35px; background: #e74c3c; color: white; border: none; font-size: 1.8rem; box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4); }
 
-        .mic-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 30px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            font-size: 1.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
-        }
-
-        /* Bottom Nav */
+        /* Navigation */
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 12px 0 calc(18px + var(--safe-area-bottom));
-            display: flex;
-            justify-content: space-around;
-            z-index: 1000;
-            border-top: 1px solid var(--glass-border);
-            border-radius: 30px 30px 0 0;
+            position: fixed; bottom: 0; left: 0; right: 0; padding: 15px 0 calc(20px + var(--safe-area-bottom));
+            display: flex; justify-content: space-around; z-index: 1000; border-radius: 30px 30px 0 0;
         }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-light);
-            font-size: 0.8rem;
-            font-weight: 700;
-            gap: 6px;
-        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-light); font-size: 0.8rem; font-weight: 800; gap: 8px; }
         .nav-item.active { color: var(--helios-green); }
-        .nav-icon { font-size: 1.8rem; transition: transform 0.2s; }
-        .nav-item.active .nav-icon { transform: translateY(-4px); }
+        .nav-icon { font-size: 2rem; }
 
-        /* Overlay & Toast Notifications */
-        #answerOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 5rem;
-            font-weight: 900;
-            color: white;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            text-align: center;
-            padding: 40px;
-        }
+        /* Toast & Overlay */
+        #toastContainer { position: fixed; top: 25px; left: 50%; transform: translateX(-50%); z-index: 10001; width: 85%; }
+        .toast { background: rgba(30, 41, 59, 0.9); color: white; padding: 16px; border-radius: 15px; font-weight: 700; opacity: 0; transform: translateY(-20px); transition: 0.3s; margin-bottom: 10px; backdrop-filter: blur(10px); }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        #answerOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10000; display: flex; align-items: center; justify-content: center; font-size: 6rem; font-weight: 900; color: white; opacity: 0; pointer-events: none; transition: 0.3s; padding: 40px; text-align: center; }
         #answerOverlay.show { opacity: 1; }
 
-        #toastContainer {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10001;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-            width: 90%;
-            max-width: 400px;
-        }
-
-        .toast {
-            background: rgba(44, 62, 80, 0.95);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            backdrop-filter: blur(10px);
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast.error { border-left: 5px solid #e74c3c; }
-
-        .hidden { display: none !important; }
         .rtl { direction: rtl; text-align: right; }
-        .loader { border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 28px; height: 28px; animation: spin 1s linear infinite; display: none; }
+        .hidden { display: none !important; }
+        .loader { border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
     </style>
 </head>
 <body>
@@ -351,7 +235,7 @@
     <h1 class="header-title">ER QuickTranslate Pro</h1>
     <div class="search-container">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Suchen (z.B. Sturz, Schmerz, Warten...)" autocomplete="off">
+        <input type="text" id="searchInput" placeholder="Suchen (z.B. Sturz, Schmerz, Meds...)" autocomplete="off">
     </div>
     <div class="lang-scroll" id="langNav"></div>
 </div>
@@ -361,16 +245,16 @@
 </div>
 
 <div class="main-content hidden" id="freeTextView">
-    <h2 style="font-size: 1.2rem; margin-bottom: 12px; font-weight: 800;">Live-Übersetzung</h2>
+    <h2 style="font-weight: 900; margin-bottom: 15px;">Live-Übersetzung</h2>
     <div class="textarea-container" style="position: relative;">
-        <textarea id="freeTextInput" placeholder="Satz auf Deutsch sprechen oder tippen..."></textarea>
+        <textarea id="freeTextInput" placeholder="Sprechen oder tippen..."></textarea>
         <button class="mic-btn" id="micBtn" onclick="toggleDictation()">🎤</button>
     </div>
-    <button class="liquid-glass" style="width: 100%; height: 60px; margin-top: 24px; background: var(--helios-green); color: white; border: none; font-weight: 800; font-size: 1.2rem; border-radius: 20px;" onclick="translateAndSpeak()">
-        <span id="translateLabel">🚀 JETZT ÜBERSETZEN</span>
+    <button class="liquid-glass" style="width: 100%; height: 70px; margin-top: 25px; background: var(--helios-green); color: white; border: none; font-weight: 900; font-size: 1.3rem; border-radius: 25px;" onclick="translateAndSpeak()">
+        <span id="translateLabel">ÜBERSETZEN & VORLESEN</span>
         <div class="loader" id="translateLoader"></div>
     </button>
-    <div id="translationResult" class="phrase-card liquid-glass hidden" style="margin-top: 30px;">
+    <div id="translationResult" class="phrase-card liquid-glass hidden" style="margin-top: 35px;">
         <div class="german" id="resGerman"></div>
         <div class="target-lang" id="resTarget"></div>
         <div class="card-actions">
@@ -380,22 +264,12 @@
 </div>
 
 <div class="main-content hidden" id="patientModeView">
-    <h2 style="text-align: center; color: var(--text-light); margin-bottom: 25px;">Antwort-Modus (Patient)</h2>
-    
+    <h2 style="text-align: center; color: var(--text-light); margin-bottom: 30px;">Patienten-Modus</h2>
     <div style="display: flex; gap: 20px; width: 100%;">
-        <button class="liquid-glass" style="flex: 1; padding: 40px 10px; border-radius: 25px; border: none; background: #2ecc71; color: white; font-weight: 900; font-size: 2rem;" onclick="handlePatientAnswer('Ja', '#2ecc71')">
-            👍 <br><span style="font-size: 1.4rem;">Ja</span>
-        </button>
-        <button class="liquid-glass" style="flex: 1; padding: 40px 10px; border-radius: 25px; border: none; background: #e74c3c; color: white; font-weight: 900; font-size: 2rem;" onclick="handlePatientAnswer('Nein', '#e74c3c')">
-            👎 <br><span style="font-size: 1.4rem;">Nein</span>
-        </button>
+        <button class="liquid-glass" style="flex: 1; padding: 45px 10px; border-radius: 30px; border: none; background: #2ecc71; color: white; font-weight: 900; font-size: 2.5rem;" onclick="handlePatientAnswer('Ja', '#2ecc71')">👍<br><span style="font-size: 1.5rem;">Ja</span></button>
+        <button class="liquid-glass" style="flex: 1; padding: 45px 10px; border-radius: 30px; border: none; background: #e74c3c; color: white; font-weight: 900; font-size: 2.5rem;" onclick="handlePatientAnswer('Nein', '#e74c3c')">👎<br><span style="font-size: 1.5rem;">Nein</span></button>
     </div>
-    
-    <button class="liquid-glass" style="width: 100%; margin-top: 20px; padding: 25px; border-radius: 25px; color: #7f8c8d; font-weight: 800; font-size: 1.4rem;" onclick="handlePatientAnswer('Weiß nicht', '#95a5a6')">
-        🤷‍♂️ Weiß nicht
-    </button>
-
-    <h3 style="margin-top: 45px; font-size: 1.1rem; text-align: center; font-weight: 900;">WIE STARK SIND DIE SCHMERZEN?</h3>
+    <button class="liquid-glass" style="width: 100%; margin-top: 25px; padding: 30px; border-radius: 30px; color: #7f8c8d; font-weight: 900; font-size: 1.5rem;" onclick="handlePatientAnswer('Weiß nicht', '#95a5a6')">🤷‍♂️ Weiß nicht</button>
     <div class="pain-board" id="painBoard">
         <div class="pain-item liquid-glass" onclick="handlePatientAnswer('Schmerz 0', '#2ecc71')"><span class="pain-emoji">😊</span><span>0</span></div>
         <div class="pain-item liquid-glass" onclick="handlePatientAnswer('Schmerz 2', '#82bc00')"><span class="pain-emoji">🙂</span><span>2</span></div>
@@ -434,41 +308,37 @@
             "fr": { name: "Französisch", code: "fr-FR", flag: "🇫🇷", ui: { yes: "Oui", no: "Non", idk: "Je ne sais pas" } }
         },
         phrases: [
-            // --- 1. TRIAGE & BEGRÜSSUNG ---
-            { id: 1, cat: "1. Triage & Begrüßung", tags: ["hallo", "arzt", "pflege"], de: "Hallo, ich bin Pflegekraft. Ein Arzt kommt gleich.", en: "Hello, I am a nurse. A doctor will be here shortly.", ar: "مرحباً، أنا ممرض. سيأتي الطبيب قريباً.", fa: "سلام، من پرستار هستم. دکتر به زودي می‌آید.", tr: "Merhaba, ben hemşireyim. Doktor birazdan gelecek.", ru: "Здравствуйте, я медсестра. Врач скоро придет.", uk: "Доброго дня, я медсестра. Лікар скоро прийде.", pl: "Dzień dobry, jestem pielęgniarką. Lekarz zaraz przyjdzie.", ro: "Bună, sunt asistent. Un medic va veni curând.", fr: "Bonjour, je suis infirmier. Un médecin arrive." },
-            { id: 2, cat: "1. Triage & Begrüßung", tags: ["ausweis", "karte"], de: "Haben Sie Ihren Ausweis oder die Krankenkarte dabei?", en: "Do you have your ID or health insurance card?", ar: "هل معك هويتك أو بطاقة التأمين الصحي؟", fa: "کارت شناسایی یا کارت بیمه همراه دارید؟", tr: "Kimliğiniz yanınızda mı?", ru: "У вас есть паспорт?", uk: "У вас є паспорт?", pl: "Czy ma pan/pani dowód?", ro: "Aveți actul de identitate?", fr: "Avez-vous votre carte d'identité?" },
+            // 1. Triage
+            { id: 1, cat: "1. Triage & Begrüßung", tags: ["hallo", "arzt"], de: "Hallo, ich bin Pflegekraft. Ein Arzt kommt gleich.", en: "Hello, I am a nurse. A doctor will be here shortly.", ar: "مرحباً، أنا ممرض. سيأتي الطبيب قريباً.", fa: "سلام، من پرستار هستم. دکتر به زودي می‌آید.", tr: "Merhaba, hemşireyim. Doktor birazdan gelecek.", ru: "Здравствуйте, я медсестра. Врач скоро придет.", uk: "Доброго дня, я медсестра. Лікар скоро прийде.", pl: "Dzień dobry, jestem pielęgniarką. Lekarz zaraz przyjdzie.", ro: "Bună, sunt asistent. Un medic va veni curând.", fr: "Bonjour, je suis infirmier. Un médecin arrive." },
+            { id: 2, cat: "1. Triage & Begrüßung", tags: ["karte"], de: "Haben Sie Ihren Ausweis oder die Krankenkarte dabei?", en: "Do you have your ID or health insurance card?", ar: "هل معك هويتك أو بطاقة التأمين؟", fa: "کارت شناسایی یا کارت بیمه دارید؟", tr: "Kimliğiniz yanınızda mı?", ru: "Паспорт с собой?", uk: "Паспорт з собою?", pl: "Czy ma pan/pani dowód?", ro: "Aveți cardul de sănătate?", fr: "Avez-vous votre carte d'identité?" },
             
-            // --- 2. SCHMERZEN ---
-            { id: 5, cat: "2. Schmerzanamnese", tags: ["schmerz", "weh"], de: "Haben Sie Schmerzen?", en: "Are you in pain?", ar: "هل تشعر بألم؟", fa: "آیا درد دارید؟", tr: "Ağrınız var mı?", ru: "У вас что-то болит?", uk: "У вас щось болить?", pl: "Czy coś boli?", ro: "Aveți dureri?", fr: "Avez-vous mal?" },
-            { id: 6, cat: "2. Schmerzanamnese", tags: ["wo", "zeigen"], de: "Zeigen Sie mit einem Finger, wo es am meisten weh tut.", en: "Point with one finger to where it hurts most.", ar: "أشر بإصبع واحد إلى مكان الألم.", fa: "با یک انگشت نشان دهید کجا درد می کند.", tr: "En çok nerenin ağrıdığını gösterin.", ru: "Покажите пальцем, где болит.", uk: "Покажіть пальцем, де болить.", pl: "Proszę pokazać palcem, gdzie boli.", ro: "Arătați cu un deget unde doare.", fr: "Montrez avec un doigt où vous avez mal." },
+            // 2. Schmerz
+            { id: 5, cat: "2. Schmerzanamnese", tags: ["schmerz"], de: "Haben Sie Schmerzen?", en: "Are you in pain?", ar: "هل تشعر بألم؟", fa: "آیا درد دارید؟", tr: "Ağrınız var mı?", ru: "У вас что-то болит?", uk: "У вас щось болить?", pl: "Czy boli?", ro: "Aveți dureri?", fr: "Avez-vous mal?" },
+            { id: 6, cat: "2. Schmerzanamnese", tags: ["wo"], de: "Zeigen Sie mit einem Finger, wo es am meisten weh tut.", en: "Point with one finger to where it hurts most.", ar: "أشر بإصبع واحد إلى مكان الألم.", fa: "با یک انگشت نشان دهید کجا درد می کند.", tr: "Nerenin ağrıdığını parmağınızla gösterin.", ru: "Покажите пальцем, где болит.", uk: "Покажіть пальцем, де болить.", pl: "Proszę pokazać palcem, gdzie boli.", ro: "Arătați cu un deget unde doare.", fr: "Montrez avec un doigt où vous avez mal." },
             
-            // --- 3. ATEMWEGE ---
-            { id: 9, cat: "3. Atemwege & Herz", tags: ["atemnot", "luft"], de: "Haben Sie Atemnot oder keine Luft?", en: "Do you have shortness of breath?", ar: "هل تعاني من ضيق في التنفس؟", fa: "آیا تنگی نفس دارید؟", tr: "Nefes darlığınız var mı?", ru: "Вам трудно дышать?", uk: "Вам важко дихати?", pl: "Czy ma pan/pani duszności?", ro: "Aveți dificultăți de respirație?", fr: "Avez-vous du mal à respirer?" },
-
-            // --- 5. MAGEN & DARM ---
-            { id: 13, cat: "5. Magen & Darm", tags: ["übel", "erbrechen", "bauch"], de: "Ist Ihnen übel oder haben Sie erbrochen?", en: "Are you nauseous or have you vomited?", ar: "هل تشعر بالغثيان أو تقيأت؟", fa: "آیا حالت تهوع دارید یا استفراغ کرده اید؟", tr: "Mideniz bulanıyor mu veya kustunuz mu?", ru: "Вас тошнит или вы рвали?", uk: "Вас нудить або ви блювали?", pl: "Czy ma pan/pani mdłości lub wymioty?", ro: "Vă este greață sau ați vomitat?", fr: "Avez-vous des nausées ou avez-vous vomi?" },
-
-            // --- 6. UNFALL & VERLETZUNG ---
-            { id: 21, cat: "6. Unfall & Verletzung", tags: ["sturz", "gefallen"], de: "Sind Sie gestürzt oder hingefallen?", en: "Did you fall or trip?", ar: "هل سقطت أو تعثرت؟", fa: "آیا زمین خوردید؟", tr: "Düştünüz mü?", ru: "Вы упали?", uk: "Ви впали?", pl: "Czy pan/pani upadł/a?", ro: "Ați căzut?", fr: "Êtes-vous tombé?" },
-
-            // --- 7. VORGESCHICHTE ---
-            { id: 14, cat: "7. Vorgeschichte & Medikamente", tags: ["blutverdünner"], de: "Nehmen Sie Blutverdünner? (Marcumar, Xarelto, Eliquis)", en: "Do you take blood thinners?", ar: "هل تتناول مسيلات الدم؟", fa: "آیا داروهای رقیق کننده خون مصرف می کنید؟", tr: "Kan sulandırıcı kullanıyor musunuz?", ru: "Вы принимаете препараты для разжижения крови?", uk: "Ви приймаєте препарати для розрідження крові?", pl: "Czy bierze pan/pani leki na rozrzedzenie?", ro: "Luați anticoagulante?", fr: "Prenez-vous des anticoagulants?" },
-            { id: 30, cat: "7. Vorgeschichte & Medikamente", tags: ["schrittmacher", "hörgerät", "prothese"], de: "Haben Sie Zahnersatz, ein Hörgerät oder einen Herzschrittmacher?", en: "Do you have dentures, a hearing aid or a pacemaker?", ar: "هل لديك طقم أسنان، سماعة أذن أو جهاز تنظيم ضربات القلب؟", fa: "آیا دندان مصنوعی، سمعک یا ضربان ساز قلب دارید؟", tr: "Takma dişiniz, işitme cihazınız veya kalp piliniz var mı?", ru: "У вас есть зубные протезы, слуховой аппарат или кардиостимулятор?", uk: "У вас є зубні протези, слуховий апарат або кардіостимулятор?", pl: "Czy ma pan/pani protezę, aparat słuchowy lub rozrusznik?", ro: "Aveți proteză dentară, aparat auditiv sau stimulator cardiac?", fr: "Avez-vous un dentier, un appareil auditif ou un stimulateur cardiaque?" },
-
-            // --- 8. ANWEISUNGEN ---
-            { id: 17, cat: "8. Untersuchung & Anweisungen", tags: ["ausziehen"], de: "Bitte machen Sie den Oberkörper frei.", en: "Please strip to the waist.", ar: "يرجى خلع ملابسك من الأعلى.", fa: "لطفا بالاتنه خود را برهنه کنید.", tr: "Üstünüzü çıkarın.", ru: "Разденьтесь до пояса.", uk: "Роздягніться до пояса.", pl: "Proszę się rozebrać do pasa.", ro: "Dezbrăcați-vă până la brâu.", fr: "Déshabillez-vous jusqu'à la taille." },
-            { id: 31, cat: "8. Untersuchung & Anweisungen", tags: ["arm", "strecken", "faust"], de: "Bitte den Arm strecken und eine Faust machen.", en: "Please extend your arm and make a fist.", ar: "يرجى مد ذراعك وإغلاق قبضة يدك.", fa: "لطفا بازوی خود را دراز کنید و مشت کنید.", tr: "Lütfen kolunuzu uzatın ve yumruk yapın.", ru: "Пожалуйста, вытяните руку и сожмите кулак.", uk: "Будь ласка, витягніть руку і стисніть кулак.", pl: "Proszę wyciągnąć ramię i zacisnąć pięść.", ro: "Vă rugăm să întindeți brațul și să faceți un pumn.", fr: "Veuillez tendre le bras et serrer le poing." },
-
-            // --- 9. ABLAUF & WARTEN (NEU) ---
-            { id: 32, cat: "9. Ablauf & Warten", tags: ["warten", "geduld", "notfall"], de: "Bitte haben Sie Geduld. Schwerere Notfälle werden zuerst behandelt.", en: "Please be patient. Severe emergencies are treated first.", ar: "يرجى التحلي بالصبر. يتم علاج الحالات الطارئة الشديدة أولاً.", fa: "لطفا صبور باشید. موارد اورژانسی شدیدتر ابتدا درمان می شوند.", tr: "Lütfen sabırlı olun. Ağır acil vakalar önce tedavi edilir.", ru: "Пожалуйста, будьте терпеливы. Тяжелые случаи обслуживаются в первую очередь.", uk: "Будь ласка, будьте терплячі. Важкі випадки обслуговуються в першу чергу.", pl: "Proszę o cierpliwość. Ciężkie przypadki są leczone w pierwszej kolejności.", ro: "Vă rugăm să aveți răbdare. Urgențele severe sunt tratate primele.", fr: "Veuillez patienter. Les urgences graves sont traitées en premier." },
-            { id: 33, cat: "9. Ablauf & Warten", tags: ["blutwerte", "labor", "dauert"], de: "Die Blutwerte dauern etwa eine Stunde.", en: "Blood results take about an hour.", ar: "نتائج فحص الدم تستغرق حوالي ساعة.", fa: "جواب آزمایش خون حدود یک ساعت طول می کشد.", tr: "Kan sonuçları yaklaşık bir saat sürer.", ru: "Результаты анализа крови будут готовы примерно через час.", uk: "Результати аналізу крові будуть готові приблизно через годину.", pl: "Wyniki krwi będą za około godzinę.", ro: "Rezultatele analizelor de sânge durează aproximativ o oră.", fr: "Les résultats sanguins prennent environ une heure." },
-            { id: 34, cat: "9. Ablauf & Warten", tags: ["entlassung", "nach hause", "brief"], de: "Der Arztbrief ist fertig. Sie können nach Hause gehen.", en: "The discharge letter is ready. You can go home.", ar: "تقرير الخروج جاهز. يمكنك الذهاب إلى المنزل.", fa: "نامه ترخیص آماده است. می توانید به خانه بروید.", tr: "Taburcu raporunuz hazır. Eve gidebilirsiniz.", ru: "Выписка готова. Вы можете идти домой.", uk: "Виписка готова. Ви можете йти додому.", pl: "Wypis jest gotowy. Może pan/pani iść do domu.", ro: "Scrisoarea de externare este gata. Puteți pleca acasă.", fr: "La lettre de sortie est prête. Vous pouvez rentrer chez vous." },
-
-            // --- 10. PFLEGE & BEDÜRFNISSE (NEU) ---
-            { id: 35, cat: "10. Pflege & Bedürfnisse", tags: ["klingel", "hilfe"], de: "Hier ist die Klingel. Drücken Sie, wenn Sie Hilfe brauchen.", en: "Here is the call button. Press it if you need help.", ar: "هنا جرس النداء. اضغط عليه إذا كنت بحاجة إلى مساعدة.", fa: "این زنگ احضار پرستار است. اگر کمک می خواهید آن را فشار دهید.", tr: "İşte çağrı zili. Yardıma ihtiyacınız olursa basın.", ru: "Вот кнопка вызова. Нажмите, если вам нужна помощь.", uk: "Ось кнопка виклику. Натисніть, якщо вам потрібна допомога.", pl: "Tutaj jest dzwonek. Proszę nacisnąć, jeśli potrzebuje pan/pani pomocy.", ro: "Aici este butonul de apel. Apăsați-l dacă aveți nevoie de ajutor.", fr: "Voici la sonnette. Appuyez si vous avez besoin d'aide." },
-            { id: 36, cat: "10. Pflege & Bedürfnisse", tags: ["toilette", "klo", "urin"], de: "Müssen Sie auf die Toilette?", en: "Do you need to use the toilet?", ar: "هل تحتاج إلى استخدام المرحاض؟", fa: "آیا باید به دستشویی بروید؟", tr: "Tuvalete gitmeniz gerekiyor mu?", ru: "Вам нужно в туалет?", uk: "Вам потрібно в туалет?", pl: "Czy musi pan/pani iść do toalety?", ro: "Trebuie să mergeți la toaletă?", fr: "Avez-vous besoin d'aller aux toilettes?" },
-            { id: 37, cat: "10. Pflege & Bedürfnisse", tags: ["aufstehen", "liegen bleiben"], de: "Bitte bleiben Sie im Bett liegen. Sie dürfen nicht alleine aufstehen.", en: "Please stay in bed. You must not get up alone.", ar: "يرجى البقاء في السرير. يجب ألا تنهض بمفردك.", fa: "لطفا در رختخواب بمانید. نباید تنهایی بلند شوید.", tr: "Lütfen yatakta kalın. Tek başınıza kalkmamalısınız.", ru: "Пожалуйста, оставайтесь в постели. Вам нельзя вставать самостоятельно.", uk: "Будь ласка, залишайтеся в ліжку. Вам не можна вставати самостійно.", pl: "Proszę zostać w łóżku. Nie wolno wstawać samemu.", ro: "Vă rugăm să rămâneți în pat. Nu trebuie să vă ridicați singur.", fr: "Veuillez rester au lit. Vous ne devez pas vous lever seul." },
-            { id: 38, cat: "10. Pflege & Bedürfnisse", tags: ["kalt", "decke", "frieren"], de: "Ist Ihnen kalt? Brauchen Sie eine Decke?", en: "Are you cold? Do you need a blanket?", ar: "هل تشعر بالبرد؟ هل تحتاج إلى بطانية؟", fa: "آیا سردتان است؟ پتو می خواهید؟", tr: "Üşüyor musunuz? Battaniyeye ihtiyacınız var mı?", ru: "Вам холодно? Вам нужно одеяло?", uk: "Вам холодно? Вам потрібна ковдра?", pl: "Czy jest panu/pani zimno? Potrzebuje pan/pani koca?", ro: "Vă este frig? Aveți nevoie de o pătură?", fr: "Avez-vous froid? Avez-vous besoin d'une couverture?" }
+            // 3. Atem
+            { id: 9, cat: "3. Atemwege & Herz", tags: ["luft"], de: "Haben Sie Atemnot oder keine Luft?", en: "Do you have shortness of breath?", ar: "هل تعاني من ضيق في التنفس؟", fa: "آیا تنگی نفس دارید؟", tr: "Nefes darlığınız var mı?", ru: "Вам трудно дышать?", uk: "Вам важко дихати?", pl: "Czy ma pan/pani duszności?", ro: "Aveți dificultăți de respirație?", fr: "Avez-vous du mal à respirer?" },
+            
+            // 4. Neuro
+            { id: 11, cat: "4. Neurologie & Kopf", tags: ["schwindel"], de: "Ist Ihnen schwindelig? Dreht sich alles?", en: "Do you feel dizzy?", ar: "هل تشعر بالدوار؟", fa: "آیا سرگیجه دارید؟", tr: "Başınız dönüyor mu?", ru: "Кружится голова?", uk: "Паморочиться голова?", pl: "Czy kręci się w głowie?", ro: "Sunteți amețit?", fr: "Avez-vous des vertiges?" },
+            
+            // 5. Magen
+            { id: 13, cat: "5. Magen & Darm", tags: ["übel"], de: "Ist Ihnen übel oder haben Sie erbrochen?", en: "Are you nauseous or have you vomited?", ar: "هل تشعر بالغثيان أو تقيأت؟", fa: "آیا حالت تهوع دارید یا استفراغ کرده اید؟", tr: "Mideniz bulanıyor mu?", ru: "Вас тошнит?", uk: "Вас нудить?", pl: "Czy ma pan/pani mdłości?", ro: "Vă este greață?", fr: "Avez-vous vomi?" },
+            
+            // 6. Unfall
+            { id: 21, cat: "6. Unfall & Verletzung", tags: ["sturz"], de: "Sind Sie gestürzt oder hingefallen?", en: "Did you fall or trip?", ar: "هل سقطت؟", fa: "آیا زمین خوردید؟", tr: "Düştünüz mü?", ru: "Вы упали?", uk: "Ви впали?", pl: "Czy pan/pani upadł/a?", ro: "Ați căzut?", fr: "Êtes-vous tombé?" },
+            
+            // 7. Vorgeschichte
+            { id: 14, cat: "7. Vorgeschichte & Medikamente", tags: ["blut"], de: "Nehmen Sie Blutverdünner? (Marcumar, Xarelto, Eliquis)", en: "Do you take blood thinners?", ar: "هل تتناول مسيلات الدم؟", fa: "آیا داروهای رقیق کننده خون مصرف می کنید؟", tr: "Kan sulandırıcı kullanıyor musunuz?", ru: "Принимаете препараты для разжижения крови?", uk: "Приймаєте препарати для розрідження крові?", pl: "Bierze pan/pani leki na rozrzedzenie?", ro: "Luați anticoagulante?", fr: "Prenez-vous des anticoagulants?" },
+            
+            // 8. Untersuchung
+            { id: 17, cat: "8. Untersuchung & Anweisungen", tags: ["frei"], de: "Bitte machen Sie den Oberkörper frei.", en: "Please strip to the waist.", ar: "يرجى خلع ملابسك من الأعلى.", fa: "بالاتنه خود را برهنه کنید.", tr: "Üstünüzü çıkarın.", ru: "Разденьтесь до пояса.", uk: "Роздягніться до пояса.", pl: "Proszę się rozebrać do pasa.", ro: "Dezbrăcați-vă până la brâu.", fr: "Déshabillez-vous jusqu'à la taille." },
+            
+            // 9. Ablauf
+            { id: 32, cat: "9. Ablauf & Warten", tags: ["warten"], de: "Bitte haben Sie Geduld. Notfälle werden zuerst behandelt.", en: "Please be patient. Emergencies are treated first.", ar: "يرجى الصبر. يتم علاج الحالات الطارئة أولاً.", fa: "لطفا صبور باشید. موارد اورژانسی ابتدا درمان می شوند.", tr: "Lütfen sabırlı olun.", ru: "Пожалуйста, подождите.", uk: "Будь ласка, зачекайте.", pl: "Proszę o cierpliwość.", ro: "Vă rugăm să aveți răbdare.", fr: "Veuillez patienter." },
+            
+            // 10. Service
+            { id: 35, cat: "10. Pflege & Bedürfnisse", tags: ["klingel"], de: "Hier ist die Klingel. Drücken Sie bei Hilfe.", en: "Here is the call button.", ar: "هنا جرس النداء.", fa: "این زنگ احضار پرستار است.", tr: "İşte çağrı zili.", ru: "Вот кнопка вызова.", uk: "Ось кнопка виклику.", pl: "Tutaj jest dzwonek.", ro: "Aici este butonul de apel.", fr: "Voici la sonnette." }
         ]
     };
 
@@ -480,18 +350,10 @@
     function showToast(message, type = 'info') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
-        toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+        toast.className = `toast show ${type === 'error' ? 'error' : ''}`;
         toast.innerText = message;
         container.appendChild(toast);
-        
-        // Reflow for transition
-        toast.offsetHeight;
-        toast.classList.add('show');
-        
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300);
-        }, 4000);
+        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 4000);
     }
 
     function init() {
@@ -526,7 +388,11 @@
             if(favPhrases.length > 0) addCategory(container, "⭐ Favoriten", favPhrases, true, langInfo);
         }
         const grouped = filtered.reduce((acc, p) => { if (!acc[p.cat]) acc[p.cat] = []; acc[p.cat].push(p); return acc; }, {});
-        Object.keys(grouped).sort().forEach(cat => addCategory(container, cat, grouped[cat], !!term, langInfo));
+        Object.keys(grouped).sort((a, b) => {
+            const numA = parseInt(a.split('.')[0]) || 99;
+            const numB = parseInt(b.split('.')[0]) || 99;
+            return numA - numB;
+        }).forEach(cat => addCategory(container, cat, grouped[cat], !!term, langInfo));
     }
 
     function addCategory(container, name, phrases, isOpen, langInfo) {
@@ -542,7 +408,6 @@
             card.className = 'phrase-card liquid-glass';
             const isFav = favorites.includes(p.id);
             const targetText = p[currentLang] || "...";
-            // Ensure proper RTL display format within the HTML element
             card.innerHTML = `
                 <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFav(${p.id})">★</button>
                 <div class="german">${p.de}</div>
@@ -586,34 +451,27 @@
         try {
             const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=de|${lang}`);
             const json = await res.json(); const translated = json.responseData.translatedText;
-            document.getElementById('resGerman').innerText = text; document.getElementById('resTarget').innerText = translated;
-            
+            document.getElementById('resGerman').innerText = text; 
             const targetEl = document.getElementById('resTarget');
+            targetEl.innerText = translated;
             targetEl.className = `target-lang ${data.languages[currentLang].rtl ? 'rtl' : ''}`;
             if(data.languages[currentLang].rtl) { targetEl.setAttribute('dir', 'rtl'); } else { targetEl.removeAttribute('dir'); }
-            
-            document.getElementById('translationResult').classList.remove('hidden'); speak(translated, data.languages[currentLang].code);
-        } catch (e) { showToast("Internetverbindung für Live-Übersetzung nötig.", "error"); }
+            document.getElementById('translationResult').classList.remove('hidden'); 
+            speak(translated, data.languages[currentLang].code);
+        } catch (e) { showToast("Internetverbindung nötig.", "error"); }
         finally { label.classList.remove('hidden'); loader.style.display = 'none'; }
     }
 
     function speak(text, code) { 
         window.speechSynthesis.cancel(); 
-        
-        // Check if the browser actually has a voice for this language
         const voices = window.speechSynthesis.getVoices();
         const shortCode = code.split('-')[0];
-        const hasVoice = voices.some(v => v.lang.startsWith(shortCode) || v.lang.startsWith(code));
-        
+        const hasVoice = voices.some(v => v.lang.startsWith(shortCode));
         if (voices.length > 0 && !hasVoice) {
-            showToast(`Dein Gerät hat leider keine ${data.languages[currentLang].name}-Stimme installiert. Bitte zeige dem Patienten den Text.`, 'error');
+            showToast(`Keine ${data.languages[currentLang].name}-Stimme installiert. Zeige den Text vor.`, 'error');
             return;
         }
-
-        const u = new SpeechSynthesisUtterance(text); 
-        u.lang = code; 
-        u.rate = 0.85; 
-        window.speechSynthesis.speak(u); 
+        const u = new SpeechSynthesisUtterance(text); u.lang = code; u.rate = 0.85; window.speechSynthesis.speak(u); 
     }
     
     function speakDe(text) { const u = new SpeechSynthesisUtterance(text); u.lang = 'de-DE'; window.speechSynthesis.speak(u); }
@@ -622,16 +480,15 @@
     function initSpeech() { 
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition; 
         if (SpeechRec) { 
-            recognition = new SpeechRec(); 
-            recognition.lang = 'de-DE'; 
+            recognition = new SpeechRec(); recognition.lang = 'de-DE'; 
             recognition.onresult = (e) => document.getElementById('freeTextInput').value = e.results[0][0].transcript; 
-            recognition.onend = () => { isRecording = false; document.getElementById('micBtn').classList.remove('recording'); }; 
+            recognition.onend = () => { isRecording = false; document.getElementById('micBtn').style.backgroundColor = ''; }; 
         } 
     }
     
     function toggleDictation() { 
-        if (!recognition) return showToast("Dein Browser unterstützt keine Spracheingabe.", "error"); 
-        if (isRecording) { recognition.stop(); } else { isRecording = true; document.getElementById('micBtn').classList.add('recording'); recognition.start(); } 
+        if (!recognition) return showToast("Spracheingabe nicht unterstützt.", "error"); 
+        if (isRecording) { recognition.stop(); } else { isRecording = true; document.getElementById('micBtn').style.backgroundColor = '#c0392b'; recognition.start(); } 
     }
     
     function updatePatientUI() { 
@@ -641,11 +498,7 @@
         document.getElementById('pm-idk-text').innerText = ui.idk; 
     }
 
-    // Initialize voices once to ensure they are loaded
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    }
-
+    if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices(); }
     init();
 </script>
 </body>
